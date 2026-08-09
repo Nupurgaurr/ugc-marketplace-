@@ -1,0 +1,148 @@
+/* ---------------------------------------------------------------- button -- */
+
+.btn {
+  --btn-bg: transparent;
+  --btn-fg: var(--bcm-crema);
+  --btn-bd: var(--bcm-line-strong);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.85em 1.5em;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  border: 1px solid var(--btn-bd);
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1;
+  text-align: center;
+  transition:
+    background 0.28s var(--ease),
+    border-color 0.28s var(--ease),
+    color 0.28s var(--ease),
+    transform 0.28s var(--ease);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.arrow {
+  transition: transform 0.28s var(--ease);
+}
+
+.btn:hover .arrow {
+  transform: translateX(4px);
+}
+
+.primary {
+  --btn-bg: var(--bcm-amber);
+  --btn-fg: #1a0f04;
+  --btn-bd: var(--bcm-amber);
+}
+
+.primary:hover {
+  --btn-bg: var(--bcm-amber-hi);
+  --btn-bd: var(--bcm-amber-hi);
+}
+
+.secondary:hover {
+  --btn-bd: var(--bcm-crema);
+  --btn-bg: rgba(237, 230, 220, 0.06);
+}
+
+.ghost {
+  --btn-bd: transparent;
+  padding-inline: 0.4em;
+  color: var(--bcm-ash);
+}
+
+.ghost:hover {
+  color: var(--bcm-crema);
+}
+
+.small {
+  padding: 0.6em 1.05em;
+  font-size: var(--step--1);
+}
+
+.block {
+  width: 100%;
+  justify-content: center;
+}
+
+/* --------------------------------------------------------------- eyebrow -- */
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bcm-ash);
+  margin-bottom: 1.4rem;
+}
+
+.eyebrowMark {
+  width: 22px;
+  height: 1px;
+  background: var(--bcm-amber);
+  flex: none;
+}
+
+/* ------------------------------------------------------------------- tag -- */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.3em 0.7em;
+  border: 1px solid var(--bcm-line);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: var(--bcm-ash);
+  white-space: nowrap;
+}
+
+.tagAccent {
+  border-color: rgba(224, 135, 58, 0.35);
+  color: var(--bcm-amber);
+  background: var(--bcm-amber-wash);
+}
+
+/* --------------------------------------------------------------- marquee -- */
+
+.marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.marqueeTrack {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll var(--marquee-duration, 40s) linear infinite;
+}
+
+.marqueeTrack:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
