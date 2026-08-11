@@ -9,3 +9,5 @@ npm run dev
 
 - **What this is and why** → [PROJECT_REPORT.md](./PROJECT_REPORT.md)
 - **How to run, extend, and operate every piece** → [HANDOVER_GUIDE.md](./HANDOVER_GUIDE.md)
+- **Every route, grouped by surface** → [SITEMAP.md](./SITEMAP.md)
+- **What's written and what's functional on every page** → [PAGE_CONTENT_MAP.md](./PAGE_CONTENT_MAP.md)
