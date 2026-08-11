@@ -1,0 +1,63 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 5, 4, 0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gutter);
+  z-index: 100;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  background: var(--bcm-roast);
+  border: 1px solid var(--bcm-line-strong);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: var(--bcm-ash);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.4rem;
+}
+
+.close:hover {
+  color: var(--bcm-crema);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+  padding-right: 1.5rem;
+}
+
+.body {
+  color: var(--bcm-ash);
+  line-height: 1.55;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-top: 1.5rem;
+}
+
+.note {
+  margin-top: 1rem;
+  font-size: var(--step--1);
+  color: var(--bcm-ash-dim);
+}

@@ -1,0 +1,54 @@
+.wrap {
+  max-width: 620px;
+  margin-inline: auto;
+}
+
+.progress {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.segment {
+  flex: 1;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: var(--bcm-line-strong);
+  overflow: hidden;
+}
+
+.segmentFill {
+  height: 100%;
+  width: 0%;
+  background: var(--bcm-accent);
+  transition: width var(--duration-slow) var(--ease-out-soft);
+}
+
+.segmentDone .segmentFill {
+  width: 100%;
+}
+
+.segmentActive .segmentFill {
+  width: 100%;
+}
+
+.stepCounter {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--bcm-ash-dim);
+  margin-bottom: 2rem;
+}
+
+.viewport {
+  min-height: 280px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2.4rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--bcm-line);
+}

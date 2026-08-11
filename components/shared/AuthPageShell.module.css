@@ -1,0 +1,51 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.top {
+  padding: 1.6rem var(--gutter);
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.brand span {
+  color: var(--bcm-accent);
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 2rem var(--gutter) 5rem;
+}
+
+.inner {
+  width: 100%;
+}
+
+.eyebrow {
+  text-align: center;
+}
+
+.title {
+  text-align: center;
+  margin-top: 0.6rem;
+  margin-bottom: 2.6rem;
+}
+
+.foot {
+  text-align: center;
+  margin-top: 1.6rem;
+  font-size: var(--step--1);
+  color: var(--bcm-ash);
+}
+
+.foot a {
+  color: var(--bcm-accent);
+}

@@ -1,0 +1,143 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--duration-base) var(--ease), background var(--duration-base) var(--ease);
+}
+
+.scrolled {
+  border-color: var(--bcm-line);
+  background: rgba(11, 9, 8, 0.85);
+  backdrop-filter: blur(10px);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 1.1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.wordmark span {
+  color: var(--bcm-accent);
+}
+
+.product {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--bcm-ash);
+  letter-spacing: 0.08em;
+}
+
+.nav {
+  display: flex;
+  gap: 2rem;
+}
+
+@media (max-width: 860px) {
+  .nav {
+    display: none;
+  }
+}
+
+.link {
+  font-size: var(--step--1);
+  color: var(--bcm-ash);
+  transition: color var(--duration-fast) var(--ease);
+}
+
+.link:hover {
+  color: var(--bcm-crema);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  position: relative;
+}
+
+@media (max-width: 860px) {
+  .actions {
+    display: none;
+  }
+}
+
+.loginMenu {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  background: var(--bcm-roast);
+  border: 1px solid var(--bcm-line-strong);
+  border-radius: var(--radius-lg);
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 170px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.loginMenuItem {
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--radius);
+  font-size: var(--step--1);
+  color: var(--bcm-crema);
+}
+
+.loginMenuItem:hover {
+  background: var(--bcm-roast-hi);
+  color: var(--bcm-accent);
+}
+
+.burger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0.4rem;
+}
+
+@media (max-width: 860px) {
+  .burger {
+    display: flex;
+  }
+}
+
+.burger span {
+  width: 20px;
+  height: 2px;
+  background: var(--bcm-crema);
+}
+
+.sheet {
+  border-top: 1px solid var(--bcm-line);
+  padding: 1.2rem var(--gutter) 1.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--bcm-black);
+}
+
+.sheetLink {
+  font-size: var(--step-0);
+  color: var(--bcm-crema);
+}
+
+.sheetActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}

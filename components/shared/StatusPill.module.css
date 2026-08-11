@@ -1,0 +1,43 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: capitalize;
+}
+
+.pill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.success {
+  background: var(--status-success-wash);
+  color: var(--status-success);
+}
+
+.warning {
+  background: var(--status-warning-wash);
+  color: var(--status-warning);
+}
+
+.danger {
+  background: var(--status-danger-wash);
+  color: var(--status-danger);
+}
+
+.info {
+  background: var(--status-info-wash);
+  color: var(--status-info);
+}
+
+.neutral {
+  background: var(--bcm-roast-hi);
+  color: var(--bcm-ash);
+}

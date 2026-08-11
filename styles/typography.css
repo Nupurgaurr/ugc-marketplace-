@@ -1,0 +1,83 @@
+/* ==========================================================================
+   Typography tokens. Swap a font family here to change it site-wide — no
+   component references a font-family directly.
+   ========================================================================== */
+
+:root {
+  --font-display: 'Bricolage Grotesque', 'Hanken Grotesk', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  --step--1: clamp(0.8rem, 0.77rem + 0.15vw, 0.875rem);
+  --step-0: clamp(0.95rem, 0.91rem + 0.2vw, 1.05rem);
+  --step-1: clamp(1.1rem, 1.02rem + 0.4vw, 1.35rem);
+  --step-2: clamp(1.35rem, 1.15rem + 0.9vw, 1.9rem);
+  --step-3: clamp(1.9rem, 1.5rem + 1.9vw, 3rem);
+  --step-4: clamp(2.4rem, 1.7rem + 3.4vw, 4.6rem);
+  --step-5: clamp(3rem, 2rem + 5vw, 6rem);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.03;
+  letter-spacing: -0.022em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.display {
+  font-size: var(--step-3);
+}
+
+.display--xl {
+  font-size: var(--step-4);
+  letter-spacing: -0.032em;
+}
+
+.display--hero {
+  font-size: var(--step-5);
+  letter-spacing: -0.035em;
+}
+
+/* Second clause of a two-part headline. */
+.display em,
+.display--xl em,
+.display--hero em {
+  font-style: normal;
+  color: var(--bcm-ash);
+}
+
+.lede {
+  font-size: var(--step-1);
+  color: var(--bcm-ash);
+  line-height: 1.5;
+  max-width: 46ch;
+}
+
+.body-dim {
+  color: var(--bcm-ash);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bcm-accent);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
