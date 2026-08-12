@@ -179,6 +179,72 @@
   font-size: var(--step--1);
 }
 
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.6rem;
+}
+
+.briefGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 780px) {
+  .briefGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.briefCard {
+  border: 1px solid var(--bcm-line);
+  border-radius: var(--radius-lg);
+  padding: 1.4rem 1.5rem;
+  background: var(--bcm-roast);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.briefCardDim {
+  opacity: 0.7;
+}
+
+.briefTitle {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--step-1);
+}
+
+.briefMeta {
+  font-size: var(--step--1);
+  color: var(--bcm-ash);
+}
+
+.briefFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.4rem;
+}
+
+.roastCard {
+  border: 1px solid var(--bcm-line);
+  border-radius: var(--radius-lg);
+  padding: 1.2rem 1.4rem;
+  background: var(--bcm-roast);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.roastLine {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--bcm-accent);
+}
+
 .addTile {
   border: 1px dashed var(--bcm-line-strong);
   border-radius: var(--radius-lg);

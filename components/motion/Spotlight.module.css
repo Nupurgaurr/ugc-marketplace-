@@ -1,0 +1,21 @@
+.spotlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  --spot-x: 50;
+  --spot-y: 50;
+  background: radial-gradient(
+    420px circle at calc(var(--spot-x) * 1%) calc(var(--spot-y) * 1%),
+    var(--spot-color, rgba(196, 163, 112, 0.16)),
+    transparent 70%
+  );
+  transition: opacity 0.4s ease;
+}
+
+.bright {
+  background: radial-gradient(
+    520px circle at calc(var(--spot-x) * 1%) calc(var(--spot-y) * 1%),
+    var(--spot-color, rgba(196, 163, 112, 0.32)),
+    transparent 70%
+  );
+}

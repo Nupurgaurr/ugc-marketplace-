@@ -11,6 +11,10 @@ export type ClientAccountStatus = 'pending' | 'approved' | 'flagged' | 'rejected
 
 export type RequestStatus = 'requested' | 'accepted' | 'delivered' | 'approved' | 'declined';
 
+export type BriefStatus = 'pending' | 'open' | 'closed' | 'rejected';
+
+export type PitchStatus = 'submitted' | 'shortlisted' | 'selected' | 'passed';
+
 export interface CreatorPreview {
   posterUrl: string;
   previewUrl: string;
@@ -36,7 +40,10 @@ export interface Creator {
   state: string;
   rateMin: number;
   rateMax: number;
+  /** One of TURNAROUND_BANDS (lib/data/creators.ts) — also a /discover filter. */
   turnaround: string;
+  /** One of SHOOT_SETUPS (lib/data/creators.ts). */
+  shootSetup: string;
   bio: string;
   availability: string;
   handles: string[];
@@ -55,9 +62,16 @@ export interface ClientAccount {
   contactName: string;
   email: string;
   phone: string;
-  categoryNeed: string;
+  /** Multi-select industries/categories — replaces the old single categoryNeed. */
+  industries: string[];
+  /** Where the brand sells — D2C site / marketplace / retail / app. */
+  sellsWhere: string[];
+  targetLanguages: string[];
+  contentStylesNeeded: string[];
   monthlyBudgetBand: string;
   typicalVolume: string;
+  /** organic only / paid ads / whitelisting */
+  usageRights: string;
   status: ClientAccountStatus;
   submittedAt: string;
 }
@@ -76,7 +90,7 @@ export interface MatchRequest {
 
 export interface AdminNote {
   id: string;
-  targetType: 'creator' | 'client';
+  targetType: 'creator' | 'client' | 'brief';
   targetId: string;
   body: string;
   author: string;
@@ -89,4 +103,36 @@ export interface FilterSelection {
   language: string[];
   location: string[];
   rate: string[];
+  turnaround: string[];
+}
+
+export interface Brief {
+  id: string;
+  clientId: string;
+  clientBrand: string;
+  title: string;
+  categories: string[];
+  contentStyles: string[];
+  languages: string[];
+  budgetBand: string;
+  /** e.g. "3 x 30s vertical, 1 photo set" */
+  deliverables: string;
+  deadline: string;
+  description: string;
+  status: BriefStatus;
+  createdAt: string;
+}
+
+export interface Pitch {
+  id: string;
+  briefId: string;
+  creatorId: string;
+  creatorName: string;
+  /** Max 400 chars, enforced in the submit form. */
+  note: string;
+  /** Max 3, enforced in the submit form. */
+  sampleLinks: string[];
+  quotedRate: string;
+  status: PitchStatus;
+  createdAt: string;
 }

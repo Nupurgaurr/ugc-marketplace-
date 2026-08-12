@@ -8,10 +8,10 @@ import { ROUTES } from '@/lib/routes';
 
 const NAV: NavItem[] = [
   { label: 'Overview', href: ROUTES.client.dashboard },
-  { label: 'Discover creators', href: ROUTES.client.discover },
+  { label: 'Discover creators', href: ROUTES.discover },
   { label: 'Shortlist', href: ROUTES.client.shortlist },
   { label: 'Requests', href: ROUTES.client.requests },
-  { label: 'Post a brief', href: ROUTES.client.brief },
+  { label: 'Briefs', href: ROUTES.client.briefs },
 ];
 
 export default function ClientShell({

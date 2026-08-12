@@ -1,15 +1,19 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, Fragment } from 'react';
+import Link from 'next/link';
 import type { Creator, FilterSelection } from '@/lib/types';
 import VideoPreviewCard from '@/components/shared/VideoPreviewCard';
-import { Chip } from '@/components/shared/Tag';
+import FilterDropdown from './FilterDropdown';
 import { FILTER_GROUPS, applyFilters, emptySelection, searchCreators, countSelected } from '@/lib/data/filters';
 import { useAuth } from '@/lib/auth/useAuth';
+import { ROUTES } from '@/lib/routes';
 import { useShortlist } from './useShortlist';
 import RequestModal from './RequestModal';
 import AuthGateModal from './AuthGateModal';
 import styles from './client.module.css';
+
+const INTERRUPT_AFTER = 12;
 
 export default function DiscoverView({ creators }: { creators: Creator[] }) {
   const { session } = useAuth('client');
@@ -49,29 +53,23 @@ export default function DiscoverView({ creators }: { creators: Creator[] }) {
 
   return (
     <div className={styles.discoverLayout}>
-      <aside>
+      <div className={styles.filterBar}>
+        {FILTER_GROUPS.map((group) => (
+          <FilterDropdown
+            key={group.id}
+            label={group.label}
+            options={group.options}
+            selected={selection[group.id]}
+            onToggle={(value) => toggleFilter(group.id, value)}
+            onClear={() => setSelection((sel) => ({ ...sel, [group.id]: [] }))}
+          />
+        ))}
         {countSelected(selection) > 0 && (
-          <button
-            type="button"
-            onClick={() => setSelection(emptySelection())}
-            style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-accent)', marginBottom: '1.2rem' }}
-          >
-            Clear filters ({countSelected(selection)})
+          <button type="button" onClick={() => setSelection(emptySelection())} className={styles.clearAllLink}>
+            Clear all ({countSelected(selection)})
           </button>
         )}
-        {FILTER_GROUPS.map((group) => (
-          <div className={styles.filterGroup} key={group.id}>
-            <p className={styles.filterGroupLabel}>{group.label}</p>
-            <div className={styles.filterChips}>
-              {group.options.map((opt) => (
-                <Chip key={opt} active={selection[group.id].includes(opt)} onClick={() => toggleFilter(group.id, opt)}>
-                  {opt}
-                </Chip>
-              ))}
-            </div>
-          </div>
-        ))}
-      </aside>
+      </div>
 
       <div>
         <div className={styles.resultsHead}>
@@ -86,17 +84,31 @@ export default function DiscoverView({ creators }: { creators: Creator[] }) {
         </div>
 
         {results.length === 0 ? (
-          <p className={styles.empty}>No creators match those filters. Try clearing a few.</p>
+          <p className={styles.empty}>
+            Nothing matches that.{' '}
+            <Link href={ROUTES.client.briefNew} style={{ color: 'var(--bcm-accent)' }}>
+              Post a brief and let them come to you →
+            </Link>
+          </p>
         ) : (
           <div className={styles.grid}>
-            {results.map((creator) => (
-              <VideoPreviewCard
-                key={creator.id}
-                creator={creator}
-                isFavorited={isShortlisted(creator.id)}
-                onToggleFavorite={handleFavorite}
-                onRequest={handleRequest}
-              />
+            {results.map((creator, i) => (
+              <Fragment key={creator.id}>
+                <VideoPreviewCard
+                  creator={creator}
+                  isFavorited={isShortlisted(creator.id)}
+                  onToggleFavorite={handleFavorite}
+                  onRequest={handleRequest}
+                />
+                {i === INTERRUPT_AFTER - 1 && (
+                  <div className={styles.interruptCard}>
+                    <span className={styles.interruptText}>Be on the other side of the camera.</span>
+                    <Link href={ROUTES.becomeCreator} className={styles.interruptLink}>
+                      Become a creator →
+                    </Link>
+                  </div>
+                )}
+              </Fragment>
             ))}
           </div>
         )}

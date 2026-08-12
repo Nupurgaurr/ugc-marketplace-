@@ -72,16 +72,9 @@
 }
 
 .discoverLayout {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 2rem;
-  align-items: flex-start;
-}
-
-@media (max-width: 860px) {
-  .discoverLayout {
-    grid-template-columns: 1fr;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
 }
 
 .filterGroup {
@@ -103,13 +96,124 @@
   gap: 0.5rem;
 }
 
+/* Dropdown filter bar (ecommerce-style) */
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid var(--bcm-line);
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdownBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--bcm-line-strong);
+  border-radius: var(--radius-full);
+  font-size: var(--step--1);
+  color: var(--bcm-crema);
+  background: var(--bcm-roast);
+  white-space: nowrap;
+}
+
+.dropdownBtn:hover {
+  border-color: var(--bcm-accent);
+}
+
+.dropdownBtnActive {
+  border-color: var(--bcm-accent);
+  color: var(--bcm-accent);
+  background: var(--bcm-accent-wash);
+}
+
+.dropdownCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 0.3rem;
+  border-radius: var(--radius-full);
+  background: var(--bcm-accent);
+  color: var(--bcm-black);
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.caret {
+  font-size: 0.65rem;
+  color: var(--bcm-ash-dim);
+}
+
+.dropdownPanel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 20;
+  min-width: 220px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--bcm-roast);
+  border: 1px solid var(--bcm-line-strong);
+  border-radius: var(--radius-lg);
+  padding: 0.6rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: var(--radius);
+  font-size: var(--step--1);
+  color: var(--bcm-crema);
+  cursor: pointer;
+}
+
+.option:hover {
+  background: var(--bcm-roast-hi);
+}
+
+.option input {
+  accent-color: var(--bcm-accent);
+}
+
+.clearBtn {
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0.5rem;
+  font-size: var(--step--1);
+  color: var(--bcm-accent);
+  text-align: center;
+  border-top: 1px solid var(--bcm-line);
+}
+
+.clearAllLink {
+  font-size: var(--step--1);
+  color: var(--bcm-accent);
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.1rem;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1000px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -144,4 +248,116 @@
 .searchInput:focus {
   outline: none;
   border-color: var(--bcm-accent);
+}
+
+.pitchCard {
+  border: 1px solid var(--bcm-line);
+  border-radius: var(--radius-lg);
+  padding: 1.4rem 1.5rem;
+  background: var(--bcm-roast);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.pitchHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pitchName {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--step-0);
+}
+
+.pitchNote {
+  color: var(--bcm-ash);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.pitchMeta {
+  font-size: var(--step--1);
+  color: var(--bcm-ash-dim);
+}
+
+.pitchActions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.interruptCard {
+  grid-column: 1 / -1;
+  background: var(--bcm-black);
+  border: 1px solid var(--bcm-accent);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.6rem, 4vw, 2.6rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.interruptText {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.3rem, 2.6vw, 2rem);
+  color: var(--bcm-crema);
+}
+
+.interruptLink {
+  font-size: var(--step-0);
+  color: var(--bcm-accent);
+  white-space: nowrap;
+}
+
+.profileHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.profileName {
+  max-width: 20ch;
+}
+
+.profileMeta {
+  color: var(--bcm-ash);
+  margin-top: 0.5rem;
+}
+
+.profileTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+}
+
+.profileBio {
+  margin-top: 1.6rem;
+  max-width: 60ch;
+  color: var(--bcm-ash);
+  line-height: 1.6;
+}
+
+.portfolioGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 2.4rem;
+}
+
+@media (max-width: 780px) {
+  .portfolioGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

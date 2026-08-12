@@ -5,23 +5,30 @@
  */
 export const ROUTES = {
   home: '/',
+  discover: '/discover',
+  creatorProfile: (slug: string) => `/discover/${slug}`,
+  becomeCreator: '/become-a-creator',
+  becomeCreatorApply: '/become-a-creator/apply',
 
   client: {
     register: '/client/register',
     login: '/client/login',
     dashboard: '/client/dashboard',
-    discover: '/client/discover',
     shortlist: '/client/shortlist',
     requests: '/client/requests',
-    brief: '/client/brief',
+    briefs: '/client/briefs',
+    briefNew: '/client/briefs/new',
+    briefPitches: (id: string) => `/client/briefs/${id}/pitches`,
   },
 
   creator: {
-    register: '/creator/register',
+    register: '/become-a-creator/apply',
     login: '/creator/login',
     dashboard: '/creator/dashboard',
     profile: '/creator/profile',
     requests: '/creator/requests',
+    briefs: '/creator/briefs',
+    pitches: '/creator/pitches',
   },
 
   admin: {
@@ -30,6 +37,7 @@ export const ROUTES = {
     creators: '/admin/creators',
     clients: '/admin/clients',
     requests: '/admin/requests',
+    briefs: '/admin/briefs',
     reports: '/admin/reports',
   },
 } as const;

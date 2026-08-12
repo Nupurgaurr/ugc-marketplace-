@@ -1,0 +1,84 @@
+.stage {
+  min-height: 100vh;
+  background: var(--bcm-black);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.6rem var(--gutter);
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--bcm-crema);
+}
+
+.brand span {
+  color: var(--bcm-accent);
+}
+
+.logout {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--bcm-ash);
+}
+
+.logout:hover {
+  color: var(--bcm-accent);
+}
+
+.head {
+  text-align: center;
+  padding-top: 1.5rem;
+}
+
+.big {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.2rem, 6vw, 4.2rem);
+  color: var(--bcm-crema);
+}
+
+.sub {
+  margin-top: 0.7rem;
+  color: var(--bcm-ash);
+  font-size: var(--step-0);
+}
+
+.toy {
+  flex: 1;
+  position: relative;
+}
+
+.corner {
+  position: absolute;
+  bottom: 1.6rem;
+  right: var(--gutter);
+  width: 140px;
+  height: 100px;
+  opacity: 0.85;
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: none;
+}
+
+@media (min-width: 720px) {
+  .corner {
+    display: block;
+  }
+}
+
+.footer {
+  padding: 1.4rem var(--gutter) 2rem;
+  text-align: center;
+  font-size: var(--step--1);
+  color: var(--bcm-ash-dim);
+  border-top: 1px solid var(--bcm-line);
+}

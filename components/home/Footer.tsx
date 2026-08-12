@@ -10,16 +10,13 @@ export default function Footer() {
           <span className={styles.wordmark}>
             blackcoffee<span>.</span> UGC
           </span>
-          <p className={styles.tagline}>
-            The vetted UGC marketplace. We set the bar for who gets on the platform —
-            brands just pick.
-          </p>
+          <p className={styles.tagline}>We reject most people who apply. That&rsquo;s the point.</p>
         </div>
 
         <div className={styles.columns}>
           <div>
             <p className={styles.colTitle}>Brands</p>
-            <Link href={ROUTES.client.discover} className={styles.colLink}>
+            <Link href={ROUTES.discover} className={styles.colLink}>
               Find a creator
             </Link>
             <Link href={ROUTES.client.register} className={styles.colLink}>
@@ -31,7 +28,7 @@ export default function Footer() {
           </div>
           <div>
             <p className={styles.colTitle}>Creators</p>
-            <Link href={ROUTES.creator.register} className={styles.colLink}>
+            <Link href={ROUTES.becomeCreator} className={styles.colLink}>
               Become a partner
             </Link>
             <Link href={ROUTES.creator.login} className={styles.colLink}>

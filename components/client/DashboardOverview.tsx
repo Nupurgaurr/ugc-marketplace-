@@ -26,10 +26,10 @@ export default function DashboardOverview() {
       <div className={styles.section}>
         <p className={styles.sectionTitle}>Quick links</p>
         <div className={styles.quickLinks}>
-          <Button href={ROUTES.client.discover} variant="secondary" arrow>
+          <Button href={ROUTES.discover} variant="secondary" arrow>
             Browse creators
           </Button>
-          <Button href={ROUTES.client.brief} variant="secondary">
+          <Button href={ROUTES.client.briefNew} variant="secondary">
             Post a brief
           </Button>
           <Button href={ROUTES.client.shortlist} variant="ghost">

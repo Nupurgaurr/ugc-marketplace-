@@ -5,10 +5,10 @@ import type { Creator } from '@/lib/types';
 import IntroOverlay from './IntroOverlay';
 import Header from './Header';
 import Hero from './Hero';
-import HowItWorks from './HowItWorks';
-import FeaturedStrip from './FeaturedStrip';
-import WhyUs from './WhyUs';
-import DualCTA from './DualCTA';
+import WorkRail from './WorkRail';
+import HowItWorksSequence from './HowItWorksSequence';
+import Refusals from './Refusals';
+import Split from './Split';
 import Footer from './Footer';
 
 export default function HomePage({ creators }: { creators: Creator[] }) {
@@ -20,10 +20,10 @@ export default function HomePage({ creators }: { creators: Creator[] }) {
       <Header />
       <main>
         <Hero start={heroStart} />
-        <HowItWorks />
-        <FeaturedStrip creators={creators} />
-        <WhyUs />
-        <DualCTA />
+        <WorkRail creators={creators} />
+        <HowItWorksSequence />
+        <Refusals />
+        <Split />
       </main>
       <Footer />
     </>

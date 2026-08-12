@@ -1,5 +1,5 @@
 import type { Creator, ClientAccount } from '../types';
-import { creators } from '../data/creators';
+import { creators, RATE_BAND_RANGES } from '../data/creators';
 import { clients } from '../data/clients';
 import { makeId } from '../utils';
 
@@ -88,9 +88,13 @@ export interface ClientRegistration {
   contactName: string;
   email: string;
   phone: string;
-  categoryNeed: string;
+  industries: string[];
+  sellsWhere: string[];
+  targetLanguages: string[];
+  contentStylesNeeded: string[];
   monthlyBudgetBand: string;
   typicalVolume: string;
+  usageRights: string;
 }
 
 export function registerClient(data: ClientRegistration): Session {
@@ -114,10 +118,14 @@ export interface CreatorRegistration {
   category: string;
   contentStyles: string[];
   languages: string[];
+  shootSetup: string;
+  turnaround: string;
+  rateBand: string;
   handles: string[];
 }
 
 export function registerCreator(data: CreatorRegistration): Session {
+  const rateRange = RATE_BAND_RANGES[data.rateBand] ?? { min: 0, max: 0 };
   const account: Creator = {
     id: makeId('c'),
     slug: data.name.toLowerCase().trim().replace(/\s+/g, '-'),
@@ -129,9 +137,10 @@ export function registerCreator(data: CreatorRegistration): Session {
     languages: data.languages,
     city: data.city,
     state: '',
-    rateMin: 0,
-    rateMax: 0,
-    turnaround: '—',
+    rateMin: rateRange.min,
+    rateMax: rateRange.max,
+    turnaround: data.turnaround,
+    shootSetup: data.shootSetup,
     bio: '',
     availability: 'Pending approval',
     handles: data.handles,

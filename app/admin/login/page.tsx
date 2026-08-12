@@ -15,9 +15,6 @@ export default function AdminLoginPage() {
       }}
     >
       <div style={{ width: '100%', maxWidth: '380px' }}>
-        <p className="eyebrow" style={{ textAlign: 'center', marginBottom: '0.6rem' }}>
-          Internal
-        </p>
         <h1 className="display" style={{ fontSize: 'var(--step-2)', textAlign: 'center', marginBottom: '2rem' }}>
           Admin
         </h1>

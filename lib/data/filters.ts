@@ -52,6 +52,12 @@ export const FILTER_GROUPS: Array<{
     match: (creator, selected) =>
       RATE_BANDS.filter((b) => selected.includes(b.label)).some((b) => b.test(creator)),
   },
+  {
+    id: 'turnaround',
+    label: 'Turnaround',
+    options: unique(approved.map((c) => c.turnaround)),
+    match: (creator, selected) => selected.includes(creator.turnaround),
+  },
 ];
 
 export const emptySelection = (): FilterSelection => ({
@@ -60,6 +66,7 @@ export const emptySelection = (): FilterSelection => ({
   language: [],
   location: [],
   rate: [],
+  turnaround: [],
 });
 
 /** Pure. Same signature the server-side query will expose later. */

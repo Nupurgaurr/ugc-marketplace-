@@ -9,9 +9,9 @@ import { cx } from '@/lib/utils';
 import styles from './Header.module.css';
 
 const NAV = [
-  { label: 'How it works', href: '#how-it-works' },
-  { label: 'Creators', href: '#creators' },
-  { label: 'Why us', href: '#why-us' },
+  { label: 'The work', href: '/#work' },
+  { label: 'How it works', href: '/#how-it-works' },
+  { label: 'What we don’t do', href: '/#refusals' },
 ];
 
 export default function Header() {
@@ -42,9 +42,9 @@ export default function Header() {
 
         <nav className={styles.nav} aria-label="Primary">
           {NAV.map((item) => (
-            <a key={item.label} href={item.href} className={styles.link}>
+            <Link key={item.label} href={item.href} className={styles.link}>
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -58,10 +58,10 @@ export default function Header() {
               <Button variant="ghost" size="small" onClick={() => setLoginOpen((v) => !v)}>
                 Log in
               </Button>
-              <Button href={ROUTES.client.discover} variant="secondary" size="small">
+              <Button href={ROUTES.discover} variant="secondary" size="small">
                 Find a creator
               </Button>
-              <Button href={ROUTES.creator.register} variant="primary" size="small" arrow>
+              <Button href={ROUTES.becomeCreator} variant="primary" size="small" arrow>
                 Become a creator
               </Button>
             </>
@@ -95,15 +95,15 @@ export default function Header() {
       {open && (
         <div className={styles.sheet}>
           {NAV.map((item) => (
-            <a key={item.label} href={item.href} className={styles.sheetLink} onClick={() => setOpen(false)}>
+            <Link key={item.label} href={item.href} className={styles.sheetLink} onClick={() => setOpen(false)}>
               {item.label}
-            </a>
+            </Link>
           ))}
           <div className={styles.sheetActions}>
-            <Button href={ROUTES.client.discover} variant="secondary" block onClick={() => setOpen(false)}>
+            <Button href={ROUTES.discover} variant="secondary" block onClick={() => setOpen(false)}>
               Find a creator
             </Button>
-            <Button href={ROUTES.creator.register} variant="primary" block arrow onClick={() => setOpen(false)}>
+            <Button href={ROUTES.becomeCreator} variant="primary" block arrow onClick={() => setOpen(false)}>
               Become a creator
             </Button>
             <Button href={ROUTES.client.login} variant="ghost" block onClick={() => setOpen(false)}>

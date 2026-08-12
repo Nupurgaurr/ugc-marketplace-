@@ -8,8 +8,7 @@ export const metadata = { title: 'Creator login — blackcoffee. UGC' };
 export default function CreatorLoginPage() {
   return (
     <AuthPageShell
-      eyebrow="For creators"
-      title="Welcome back"
+      title="Wapas aa gaye."
       footer={
         <>
           Not a partner yet? <Link href={ROUTES.creator.register}>Apply here</Link>

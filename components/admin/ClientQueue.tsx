@@ -22,7 +22,7 @@ export default function ClientQueue() {
 
   const columns: Column<ClientAccount>[] = [
     { header: 'Brand', cell: (c) => <span className={styles.name}>{c.brand}</span> },
-    { header: 'Category need', cell: (c) => c.categoryNeed },
+    { header: 'Industries', cell: (c) => c.industries.join(', ') },
     { header: 'Submitted', cell: (c) => formatDate(c.submittedAt) },
     { header: 'Budget', cell: (c) => c.monthlyBudgetBand },
     { header: 'Status', cell: (c) => <StatusPill status={c.status} /> },
@@ -80,6 +80,14 @@ export default function ClientQueue() {
               <div>
                 <p className={styles.detailLabel}>Budget band</p>
                 <p className={styles.detailValue}>{c.monthlyBudgetBand}</p>
+              </div>
+              <div>
+                <p className={styles.detailLabel}>Sells where</p>
+                <p className={styles.detailValue}>{c.sellsWhere.join(', ') || '—'}</p>
+              </div>
+              <div>
+                <p className={styles.detailLabel}>Usage rights</p>
+                <p className={styles.detailValue}>{c.usageRights || '—'}</p>
               </div>
               <div className={styles.notes}>
                 <p className={styles.detailLabel}>Internal notes (private)</p>

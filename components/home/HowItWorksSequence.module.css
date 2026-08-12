@@ -1,0 +1,54 @@
+.wrap {
+  position: relative;
+}
+
+.trigger {
+  height: 90vh;
+}
+
+.trigger:first-child {
+  height: 40vh;
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  max-width: 720px;
+  min-height: clamp(9rem, 20vw, 14rem);
+  padding-inline: var(--gutter);
+  text-align: center;
+}
+
+.index {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--bcm-accent);
+  margin-bottom: 1rem;
+}
+
+.beat {
+  position: absolute;
+  inset: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.05;
+  color: var(--bcm-crema);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s var(--ease-out-soft), transform 0.5s var(--ease-out-soft);
+}
+
+.beatActive {
+  opacity: 1;
+  transform: translateY(0);
+}

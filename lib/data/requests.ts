@@ -63,11 +63,14 @@ export function updateRequestStatus(id: string, status: MatchRequest['status']):
   if (request) request.status = status;
 }
 
-export function createRequest(input: Omit<MatchRequest, 'id' | 'createdAt' | 'status'>): MatchRequest {
+export function createRequest(
+  input: Omit<MatchRequest, 'id' | 'createdAt' | 'status'>,
+  status: MatchRequest['status'] = 'requested'
+): MatchRequest {
   const request: MatchRequest = {
     ...input,
     id: makeId('r'),
-    status: 'requested',
+    status,
     createdAt: new Date().toISOString().slice(0, 10),
   };
   requests.unshift(request);
@@ -86,11 +89,11 @@ export const adminNotes: AdminNote[] = [
   },
 ];
 
-export function getNotesFor(targetType: 'creator' | 'client', targetId: string): AdminNote[] {
+export function getNotesFor(targetType: AdminNote['targetType'], targetId: string): AdminNote[] {
   return adminNotes.filter((n) => n.targetType === targetType && n.targetId === targetId);
 }
 
-export function addNote(targetType: 'creator' | 'client', targetId: string, body: string, author = 'Admin'): AdminNote {
+export function addNote(targetType: AdminNote['targetType'], targetId: string, body: string, author = 'Admin'): AdminNote {
   const note: AdminNote = {
     id: makeId('n'),
     targetType,

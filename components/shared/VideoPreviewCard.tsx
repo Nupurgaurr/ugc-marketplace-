@@ -1,8 +1,10 @@
 'use client';
 
+import Link from 'next/link';
 import type { Creator } from '@/lib/types';
 import { usePreviewPlayback } from './usePreviewPlayback';
 import Button from './Button';
+import { ROUTES } from '@/lib/routes';
 import styles from './VideoPreviewCard.module.css';
 
 export default function VideoPreviewCard({
@@ -20,7 +22,7 @@ export default function VideoPreviewCard({
 
   return (
     <div className={styles.card}>
-      <div className={styles.media} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+      <Link href={ROUTES.creatorProfile(creator.slug)} className={styles.media} onMouseEnter={onEnter} onMouseLeave={onLeave}>
         <img className={styles.poster} src={creator.preview.posterUrl} alt={`${creator.name} — sample video`} />
         <video
           ref={videoRef}
@@ -31,20 +33,22 @@ export default function VideoPreviewCard({
           playsInline
           preload="none"
         />
-        {onToggleFavorite && (
-          <button
-            type="button"
-            className={`${styles.favorite} ${isFavorited ? styles.favoriteOn : ''}`}
-            aria-pressed={isFavorited}
-            aria-label={isFavorited ? 'Remove from shortlist' : 'Add to shortlist'}
-            onClick={() => onToggleFavorite(creator.id)}
-          >
-            {isFavorited ? '★' : '☆'}
-          </button>
-        )}
-      </div>
+      </Link>
+      {onToggleFavorite && (
+        <button
+          type="button"
+          className={`${styles.favorite} ${isFavorited ? styles.favoriteOn : ''}`}
+          aria-pressed={isFavorited}
+          aria-label={isFavorited ? 'Remove from shortlist' : 'Add to shortlist'}
+          onClick={() => onToggleFavorite(creator.id)}
+        >
+          {isFavorited ? '★' : '☆'}
+        </button>
+      )}
       <div className={styles.body}>
-        <span className={styles.name}>{creator.name}</span>
+        <Link href={ROUTES.creatorProfile(creator.slug)} className={styles.name}>
+          {creator.name}
+        </Link>
         <span className={styles.meta}>
           {creator.category} · {creator.city}
         </span>

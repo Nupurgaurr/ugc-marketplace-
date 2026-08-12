@@ -8,8 +8,7 @@ export const metadata = { title: 'Brand login — blackcoffee. UGC' };
 export default function ClientLoginPage() {
   return (
     <AuthPageShell
-      eyebrow="For brands"
-      title="Welcome back"
+      title="Welcome back, brand."
       footer={
         <>
           New here? <Link href={ROUTES.client.register}>Register your brand</Link>

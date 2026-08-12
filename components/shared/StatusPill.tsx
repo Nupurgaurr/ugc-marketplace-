@@ -15,6 +15,12 @@ const STATUS_TONE: Record<string, Tone> = {
   rejected: 'danger',
   declined: 'danger',
   flagged: 'danger',
+  submitted: 'neutral',
+  shortlisted: 'info',
+  selected: 'success',
+  passed: 'danger',
+  open: 'success',
+  closed: 'neutral',
 };
 
 const LABEL: Record<string, string> = {

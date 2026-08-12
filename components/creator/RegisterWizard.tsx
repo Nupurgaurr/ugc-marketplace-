@@ -6,21 +6,22 @@ import WizardShell from '@/components/shared/WizardShell';
 import FormField, { formFieldStyles } from '@/components/shared/FormField';
 import { Chip } from '@/components/shared/Tag';
 import MemeBeat from './MemeBeat';
-import { NICHES, CONTENT_STYLES, LANGUAGES } from '@/lib/data/creators';
+import { NICHES, CONTENT_STYLES, LANGUAGES, SHOOT_SETUPS, TURNAROUND_BANDS } from '@/lib/data/creators';
+import { RATE_BANDS } from '@/lib/data/filters';
 import { registerCreator, type CreatorRegistration } from '@/lib/auth/mockAuth';
 import { ROUTES } from '@/lib/routes';
 
-const STEP_LABELS = ['Naam & thikana', 'Genre', 'Zubaan', 'Dikhao kaam', 'The End'];
+const STEP_LABELS = ['Naam & thikana', 'Genre', 'Zubaan', 'Setup & speed', 'Dikhao kaam'];
 
 const MEME_BEATS = [
   { emoji: '🎬', line: 'Har entry mein thoda drama hona chahiye.', caption: 'Scene 1: you, but main-character energy.' },
   { emoji: '🎤', line: 'Apna genre, apna swag — no copy-paste allowed.', caption: 'Pick your lane like it’s the opening credits.' },
   { emoji: '🗣️', line: 'Jitni zubaan, utna reach.', caption: 'Dialogue delivery matters. So does language reach.' },
+  { emoji: '🎛️', line: 'Setup chhota ho ya bada, speed hi hero hai.', caption: 'Brands forgive a lot. Late delivery is not one of them.' },
   { emoji: '🎥', line: 'Ab dikhao asli talent — links bhejo, drama nahi.', caption: 'This is the item number of your application.' },
-  { emoji: '🍿', line: 'Interval ho gaya — ab bas submit dabate hain.', caption: 'Baaki hum sambhal lenge.' },
 ];
 
-type FormState = CreatorRegistration & { city: string };
+type FormState = CreatorRegistration;
 
 const INITIAL: FormState = {
   name: '',
@@ -30,6 +31,9 @@ const INITIAL: FormState = {
   category: '',
   contentStyles: [],
   languages: [],
+  shootSetup: '',
+  turnaround: '',
+  rateBand: '',
   handles: [],
 };
 
@@ -64,6 +68,9 @@ export default function RegisterWizard() {
       if (form.languages.length === 0) return 'Pick at least one language you shoot in.';
     }
     if (step === 3) {
+      if (!form.shootSetup || !form.turnaround || !form.rateBand) return 'Setup, turnaround and rate — sab chahiye.';
+    }
+    if (step === 4) {
       if (!handlesText.trim()) return 'Drop at least one handle or sample link.';
     }
     return '';
@@ -78,21 +85,17 @@ export default function RegisterWizard() {
     setError('');
 
     if (step < STEP_LABELS.length - 1) {
-      if (step === 3) {
-        set(
-          'handles',
-          handlesText
-            .split(',')
-            .map((h) => h.trim())
-            .filter(Boolean)
-        );
-      }
       setStep((s) => s + 1);
       return;
     }
 
     setSubmitting(true);
-    registerCreator(form);
+    const handles = handlesText
+      .split(',')
+      .map((h) => h.trim())
+      .filter(Boolean)
+      .slice(0, 3);
+    registerCreator({ ...form, handles });
     setTimeout(() => router.push(ROUTES.creator.dashboard), 500);
   };
 
@@ -105,6 +108,7 @@ export default function RegisterWizard() {
       onBack={() => setStep((s) => Math.max(0, s - 1))}
       onNext={handleNext}
       isLast={step === STEP_LABELS.length - 1}
+      nextLabel="Aage badho"
       submitting={submitting}
     >
       <MemeBeat {...meme} />
@@ -159,29 +163,63 @@ export default function RegisterWizard() {
       )}
 
       {step === 3 && (
-        <div style={{ display: 'grid', gap: '1.2rem' }}>
+        <div style={{ display: 'grid', gap: '1.6rem' }}>
+          <div>
+            <p style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash)', marginBottom: '0.6rem' }}>What do you shoot on</p>
+            <div className={formFieldStyles.chips}>
+              {SHOOT_SETUPS.map((s) => (
+                <Chip key={s} active={form.shootSetup === s} onClick={() => set('shootSetup', s)}>
+                  {s}
+                </Chip>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash)', marginBottom: '0.6rem' }}>Usual turnaround</p>
+            <div className={formFieldStyles.chips}>
+              {TURNAROUND_BANDS.map((t) => (
+                <Chip key={t} active={form.turnaround === t} onClick={() => set('turnaround', t)}>
+                  {t}
+                </Chip>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash)', marginBottom: '0.6rem' }}>Rate per video</p>
+            <div className={formFieldStyles.chips}>
+              {RATE_BANDS.map((b) => (
+                <Chip key={b.id} active={form.rateBand === b.label} onClick={() => set('rateBand', b.label)}>
+                  {b.label}
+                </Chip>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {step === 4 && (
+        <div style={{ display: 'grid', gap: '1.4rem' }}>
           <FormField
-            label="Instagram / YouTube / TikTok handles + 1-3 sample links"
+            label="Instagram / YouTube / TikTok handles + up to 3 sample links"
             placeholder="@yourhandle, youtube.com/@you, link-to-a-video"
             value={handlesText}
             onChange={(e) => setHandlesText(e.target.value)}
           />
           <p style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash-dim)' }}>Separate with commas. No production house required.</p>
-        </div>
-      )}
 
-      {step === 4 && (
-        <div style={{ display: 'grid', gap: '0.9rem', fontSize: 'var(--step--1)', color: 'var(--bcm-ash)' }}>
-          <p style={{ color: 'var(--bcm-crema)', fontFamily: 'var(--font-display)', fontSize: 'var(--step-1)', fontWeight: 600, marginBottom: '0.4rem' }}>
-            Last look before it goes to the review queue.
-          </p>
-          <p><strong style={{ color: 'var(--bcm-crema)' }}>{form.name}</strong> · {form.city}</p>
-          <p>{form.phone} · {form.email}</p>
-          <p>{form.category} · {form.contentStyles.join(', ')}</p>
-          <p>{form.languages.join(', ')}</p>
-          <p style={{ color: 'var(--bcm-ash-dim)' }}>
-            A real person reviews this — usually within a couple of days. Track your status from the dashboard.
-          </p>
+          <div style={{ borderTop: '1px solid var(--bcm-line)', paddingTop: '1.2rem', display: 'grid', gap: '0.5rem', fontSize: 'var(--step--1)', color: 'var(--bcm-ash)' }}>
+            <p style={{ color: 'var(--bcm-crema)', fontFamily: 'var(--font-display)', fontSize: 'var(--step-1)', fontWeight: 600 }}>
+              Interval ho gaya. Last look before submit.
+            </p>
+            <p><strong style={{ color: 'var(--bcm-crema)' }}>{form.name}</strong> · {form.city}</p>
+            <p>{form.phone} · {form.email}</p>
+            <p>{form.category} · {form.contentStyles.join(', ')}</p>
+            <p>{form.languages.join(', ')}</p>
+            <p>{form.shootSetup} · {form.turnaround} · {form.rateBand}</p>
+            <p style={{ color: 'var(--bcm-ash-dim)' }}>
+              A real person reviews this, usually within 48 hours. Track your status from the dashboard.
+            </p>
+          </div>
         </div>
       )}
     </WizardShell>

@@ -1,0 +1,23 @@
+.title {
+  max-width: 18ch;
+  margin-bottom: clamp(2.4rem, 4vw, 3.6rem);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.line {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.3rem, 2.6vw, 2rem);
+  color: var(--bcm-ash);
+  max-width: 34ch;
+}
+
+.line strong {
+  color: var(--bcm-crema);
+  font-weight: 700;
+}

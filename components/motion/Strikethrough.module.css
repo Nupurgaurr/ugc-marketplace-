@@ -1,0 +1,15 @@
+.wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.line {
+  position: absolute;
+  left: -2%;
+  top: 52%;
+  width: 0%;
+  height: 2px;
+  background: var(--bcm-accent);
+  transform: translateY(-50%) rotate(-2deg);
+  transform-origin: left center;
+}

@@ -1,0 +1,22 @@
+.rail {
+  display: flex;
+  gap: 1.1rem;
+  overflow-x: auto;
+  cursor: grab;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  user-select: none;
+  padding-bottom: 0.4rem;
+}
+
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+.rail:active {
+  cursor: grabbing;
+}
+
+.rail > * {
+  flex: 0 0 auto;
+}

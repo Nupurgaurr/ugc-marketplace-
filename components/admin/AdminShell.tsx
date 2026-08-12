@@ -10,6 +10,7 @@ const NAV: NavItem[] = [
   { label: 'Overview', href: ROUTES.admin.dashboard },
   { label: 'Creator approvals', href: ROUTES.admin.creators },
   { label: 'Client approvals', href: ROUTES.admin.clients },
+  { label: 'Brief approvals', href: ROUTES.admin.briefs },
   { label: 'Requests', href: ROUTES.admin.requests },
   { label: 'Reports', href: ROUTES.admin.reports },
 ];

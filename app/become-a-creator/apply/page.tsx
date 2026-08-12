@@ -3,12 +3,11 @@ import AuthPageShell from '@/components/shared/AuthPageShell';
 import RegisterWizard from '@/components/creator/RegisterWizard';
 import { ROUTES } from '@/lib/routes';
 
-export const metadata = { title: 'Become a UGC creator — blackcoffee. UGC' };
+export const metadata = { title: 'Lights, camera, apply. — blackcoffee. UGC' };
 
-export default function CreatorRegisterPage() {
+export default function CreatorApplyPage() {
   return (
     <AuthPageShell
-      eyebrow="For creators"
       title="Lights, camera, apply."
       footer={
         <>

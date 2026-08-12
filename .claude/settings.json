@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git rm *)",
+      "Bash(grep -rln \"Eyebrow\\\\|className=\\\\\"eyebrow\\\\\"\\\\|'eyebrow'\\\\|\\\\`eyebrow\" --include=\"*.tsx\" .)",
+      "Bash(grep -rn \"\\\\\"eyebrow\\\\\"\\\\|'eyebrow'\\\\|\\\\`eyebrow\" --include=\"*.tsx\" .)",
+      "Bash(mkdir -p \"c:\\\\Users\\\\dhruv\\\\Desktop\\\\Ugc Marketplace\\\\ugc-marketplace-\\\\app\\\\discover\\\\[slug]\")",
+      "Bash(grep -i \"error\\\\|warn\" /tmp/next-dev2.log | grep -v \"webpack.cache.PackFileCacheStrategy\" | head -50)",
+      "Read(//tmp/**)",
+      "Bash(curl -s http://localhost:3000/become-a-creator)",
+      "Bash(curl -s http://localhost:3000/become-a-creator/apply)",
+      "Bash(grep -o '.\\\\{60\\\\}sugar\\\\..\\\\{60\\\\}')",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //PID 17180 //F)",
+      "Bash(cat /tmp/next-dev3.log)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\dhruv\\Desktop\\Ugc Marketplace\\ugc-marketplace-\\app\\discover"
+    ]
+  }
+}

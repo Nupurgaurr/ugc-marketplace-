@@ -6,20 +6,18 @@ import { EASE_SOFT, prefersReducedMotion } from '@/lib/animation/gsapConfig';
 import styles from './IntroOverlay.module.css';
 
 const SESSION_KEY = 'bcm_intro_seen';
-const WORDMARK = 'blackcoffee.'.split('');
+const PHASES = ['black coffee.', 'no sugar.'];
 
 /**
- * First-load entrance: complete black screen → "Welcome to" fades up →
- * "blackcoffee." staggers in letter-by-letter from the left → "UGC" pops in
- * accent color → overlay fades to reveal the hero. Plays once per browser
- * session. See HANDOVER_GUIDE.md to retune timing/easing.
+ * First-load entrance: complete black screen, typed one line at a time —
+ * "black coffee." then "no sugar." — then lifts to reveal the hero. Plays
+ * once per browser session. See HANDOVER_GUIDE.md to retune timing.
  */
 export default function IntroOverlay({ onComplete }: { onComplete: () => void }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const welcomeRef = useRef<HTMLSpanElement>(null);
-  const wordmarkRef = useRef<HTMLDivElement>(null);
-  const productRef = useRef<HTMLSpanElement>(null);
+  const lineRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
+  const [phase, setPhase] = useState(0);
   const completedRef = useRef(false);
 
   const finish = () => {
@@ -35,46 +33,40 @@ export default function IntroOverlay({ onComplete }: { onComplete: () => void })
       finish();
       return;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    const letters = wordmarkRef.current?.querySelectorAll('[data-letter]');
-    const tl = gsap.timeline({ defaults: { ease: EASE_SOFT }, onComplete: finish });
+  useEffect(() => {
+    if (!visible || completedRef.current) return;
+    const letters = lineRef.current?.querySelectorAll('[data-letter]');
+    if (!letters) return;
 
-    tl.fromTo(welcomeRef.current, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5 })
-      .fromTo(
-        letters ?? [],
-        { opacity: 0, x: -28 },
-        { opacity: 1, x: 0, duration: 0.45, stagger: 0.035 },
-        '-=0.15'
-      )
-      .fromTo(productRef.current, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.4 }, '-=0.1')
-      .to(rootRef.current, { opacity: 0, duration: 0.55, delay: 0.45, pointerEvents: 'none' });
+    const tl = gsap.timeline({ defaults: { ease: EASE_SOFT } });
+    tl.fromTo(letters, { opacity: 0 }, { opacity: 1, duration: 0.03, stagger: 0.055 });
+
+    if (phase < PHASES.length - 1) {
+      tl.to({}, { duration: 0.6 }).call(() => setPhase((p) => p + 1));
+    } else {
+      tl.to({}, { duration: 0.7 }).to(rootRef.current, { opacity: 0, duration: 0.55, pointerEvents: 'none' }).call(finish);
+    }
 
     return () => {
       tl.kill();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [visible, phase]);
 
   if (!visible) return null;
 
   return (
     <div className={styles.overlay} ref={rootRef}>
-      <div className={styles.stack}>
-        <span className={styles.welcome} ref={welcomeRef}>
-          Welcome to
-        </span>
-        <div className={styles.wordmarkLine}>
-          <div className={styles.wordmark} ref={wordmarkRef}>
-            {WORDMARK.map((ch, i) => (
-              <span key={i} data-letter className={styles.letter}>
-                {ch}
-              </span>
-            ))}
-          </div>
-          <span className={styles.product} ref={productRef}>
-            UGC
+      <div className={styles.line} ref={lineRef} key={phase}>
+        {PHASES[phase].split('').map((ch, i) => (
+          <span key={i} data-letter className={styles.letter}>
+            {ch}
           </span>
-        </div>
+        ))}
+        <span className={styles.cursor} aria-hidden="true" />
       </div>
     </div>
   );

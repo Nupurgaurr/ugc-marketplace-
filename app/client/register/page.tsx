@@ -8,7 +8,6 @@ export const metadata = { title: 'Register your brand — blackcoffee. UGC' };
 export default function ClientRegisterPage() {
   return (
     <AuthPageShell
-      eyebrow="For brands"
       title="Register your brand"
       footer={
         <>
