@@ -43,7 +43,7 @@ const SCREENS: Array<(props: ScreenProps) => JSX.Element> = [
 const TOTAL = SCREENS.length;
 
 /**
- * A normal stacked-scroll page — NOT scroll-jacked/pinned. An earlier
+ * A normal stacked-scroll page, NOT scroll-jacked/pinned. An earlier
  * ScrollTrigger-pin version was fragile (huge blank scroll track when the
  * pin failed to engage). Each screen reveals itself via IntersectionObserver
  * as it enters the viewport; that's simple, robust, and still reads as a

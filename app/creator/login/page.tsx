@@ -3,7 +3,7 @@ import AuthPageShell from '@/components/shared/AuthPageShell';
 import LoginForm from '@/components/creator/LoginForm';
 import { ROUTES } from '@/lib/routes';
 
-export const metadata = { title: 'Creator login — blackcoffee. UGC' };
+export const metadata = { title: 'Creator login · blackcoffee. UGC' };
 
 export default function CreatorLoginPage() {
   return (

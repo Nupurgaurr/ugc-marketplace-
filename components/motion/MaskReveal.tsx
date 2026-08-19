@@ -4,7 +4,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import gsap from 'gsap';
 import { EASE_SOFT, prefersReducedMotion } from '@/lib/animation/gsapConfig';
 
-/** Clip-path wipe reveal — used on section headings instead of a fade.
+/** Clip-path wipe reveal, used on section headings instead of a fade.
  *  Plays once, the first time it scrolls into view. */
 export default function MaskReveal({
   children,

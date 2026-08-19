@@ -50,6 +50,7 @@ export async function saveProfile(input: CreatorProfile): Promise<SaveResult> {
       creator_id: creatorId,
       platform: p.platform,
       handle: p.handle,
+      follower_count: p.followerCount,
       is_primary: p.platform === 'instagram',
     }))
   );

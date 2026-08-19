@@ -29,7 +29,7 @@ export default function CreatorQueue({ rows }: { rows: CreatorRow[] }) {
 
   const columns: Column<CreatorRow>[] = [
     { header: 'Creator', cell: (c) => <span className={styles.name}>{c.full_name}</span> },
-    { header: 'Category', cell: (c) => c.category_label ?? '—' },
+    { header: 'Category', cell: (c) => c.category_label ?? 'None' },
     { header: 'Submitted', cell: (c) => formatDate(c.created_at) },
     {
       header: 'Sample links',
@@ -54,7 +54,7 @@ export default function CreatorQueue({ rows }: { rows: CreatorRow[] }) {
             </Button>
           </div>
         ) : (
-          <span className={styles.muted}>—</span>
+          <span className={styles.muted}>None</span>
         ),
     },
   ];
@@ -88,19 +88,19 @@ export default function CreatorQueue({ rows }: { rows: CreatorRow[] }) {
             </div>
             <div>
               <p className={styles.detailLabel}>Languages</p>
-              <p className={styles.detailValue}>{c.languages.map(languageLabel).join(', ') || '—'}</p>
+              <p className={styles.detailValue}>{c.languages.map(languageLabel).join(', ') || 'None'}</p>
             </div>
             <div>
               <p className={styles.detailLabel}>Content styles</p>
-              <p className={styles.detailValue}>{c.content_styles.join(', ') || '—'}</p>
+              <p className={styles.detailValue}>{c.content_styles.join(', ') || 'None'}</p>
             </div>
             <div>
               <p className={styles.detailLabel}>Social profiles</p>
-              <p className={styles.detailValue}>{c.social_handles.join(' · ') || '—'}</p>
+              <p className={styles.detailValue}>{c.social_handles.join(' · ') || 'None'}</p>
             </div>
             <div>
               <p className={styles.detailLabel}>Sample links</p>
-              <p className={styles.detailValue}>{c.sample_links.join(' · ') || '—'}</p>
+              <p className={styles.detailValue}>{c.sample_links.join(' · ') || 'None'}</p>
             </div>
           </div>
         )}

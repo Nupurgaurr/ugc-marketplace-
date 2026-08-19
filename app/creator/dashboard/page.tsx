@@ -5,7 +5,7 @@ import StatusTracker from '@/components/creator/StatusTracker';
 import { getCurrentCreator } from '@/lib/data/creator';
 import { ROUTES } from '@/lib/routes';
 
-export const metadata = { title: 'Overview — blackcoffee. UGC' };
+export const metadata = { title: 'Overview · blackcoffee. UGC' };
 
 /** Applied and in-review applications get the waiting stage instead of a
  *  dashboard. Approved and rejected both fall through to the real one;

@@ -1,6 +1,6 @@
 /**
  * Every domain type in the app, aliased off the generated schema types in
- * lib/database.types.ts. Nothing here restates a table by hand — change a
+ * lib/database.types.ts. Nothing here restates a table by hand. Change a
  * column, regenerate, and the app stops compiling at the places that care.
  */
 
@@ -25,7 +25,7 @@ export type AdminNote = Tables['admin_notes']['Row'];
 
 /**
  * What the payout tab is allowed to render. The account number never leaves
- * the server intact — the route handler masks it to the last four digits
+ * the server intact: the route handler masks it to the last four digits
  * before it reaches any client component.
  */
 export type MaskedPayoutDetails = Omit<PayoutDetails, 'account_number' | 'pan_number'> & {

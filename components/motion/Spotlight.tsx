@@ -7,7 +7,7 @@ import { cx } from '@/lib/utils';
 import styles from './Spotlight.module.css';
 
 /** A cursor-following radial glow on a dark surface. Attach inside a
- *  `position: relative` container — it fills it. `bright` toggles the
+ *  `position: relative` container: it fills it. `bright` toggles the
  *  stronger variant used on meme beats. */
 export default function Spotlight({ bright = false }: { bright?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);

@@ -1,12 +1,12 @@
 /* ==========================================================================
-   Design tokens — single source of truth for color, spacing and motion.
+   Design tokens: single source of truth for color, spacing and motion.
    Change a value here and it updates everywhere in the product. Do not
-   hardcode a hex/px value in a component — reference a token instead.
+   hardcode a hex/px value in a component. Reference a token instead.
    ========================================================================== */
 
 :root {
   /* ---- Color: canvas & surface -------------------------------------- */
-  --bcm-black: #0b0908; /* page canvas — warm-shifted near-black */
+  --bcm-black: #0b0908; /* page canvas, warm-shifted near-black */
   --bcm-grounds: #121010; /* raised band */
   --bcm-roast: #1a1615; /* card / input surface */
   --bcm-roast-hi: #241f1d; /* hover surface */

@@ -8,7 +8,7 @@ import styles from './MemeSlot.module.css';
 /**
  * Renders a real meme asset if the manifest entry has a `src`, otherwise a
  * bold animated typographic fallback built from `caption`. See
- * content/memes.ts — every slot ships empty by default.
+ * content/memes.ts. Every slot ships empty by default.
  */
 export default function MemeSlot({
   id,

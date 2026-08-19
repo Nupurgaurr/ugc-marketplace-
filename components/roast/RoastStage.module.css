@@ -107,9 +107,12 @@
   margin-top: var(--space-6);
 }
 
+/* Same bordered tile as every other selector in the product. Not a pill. */
 .quizOption {
+  min-height: 44px;
   border: 1px solid var(--bcm-line-strong);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius);
+  background: var(--bcm-roast);
   padding: var(--space-3) var(--space-5);
   color: var(--bcm-crema);
   font-size: var(--step-0);
@@ -118,13 +121,11 @@
 }
 
 .quizOption:hover {
-  border-color: var(--bcm-accent);
-  color: var(--bcm-accent);
+  background: var(--bcm-roast-hi);
 }
 
 .quizOptionOn {
-  background: var(--bcm-accent);
-  color: var(--bcm-black);
+  background: var(--bcm-accent-wash);
   border-color: var(--bcm-accent);
 }
 

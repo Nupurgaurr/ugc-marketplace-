@@ -1,8 +1,8 @@
 /* ==========================================================================
-   BCM UGC Marketplace — global stylesheet.
+   BCM UGC network, global stylesheet.
    Tokens live in /styles/tokens.css (color/spacing/motion) and
    /styles/typography.css (fonts/type scale). This file is resets, base
-   element styles and small cross-portal utility classes only — component
+   element styles and small cross-portal utility classes only. component
    styling belongs in that component's own *.module.css file.
    ========================================================================== */
 

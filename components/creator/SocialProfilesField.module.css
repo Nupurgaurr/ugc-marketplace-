@@ -1,0 +1,145 @@
+.wrap {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.row {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.rowHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.platform {
+  font-size: var(--step--1);
+  color: var(--bcm-ash);
+}
+
+.required {
+  font-size: var(--step--1);
+  color: var(--bcm-ash-dim);
+}
+
+.remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius);
+  color: var(--bcm-ash-dim);
+  transition: color var(--duration-fast) var(--ease), background var(--duration-fast) var(--ease);
+}
+
+.remove:hover {
+  color: var(--status-danger);
+  background: var(--bcm-roast-hi);
+}
+
+.inputs {
+  display: grid;
+  gap: var(--space-2);
+}
+
+/* Instagram carries the follower count beside it. */
+.inputsPrimary {
+  grid-template-columns: 1fr 9rem;
+}
+
+@media (max-width: 560px) {
+  .inputsPrimary {
+    grid-template-columns: 1fr;
+  }
+}
+
+.input {
+  width: 100%;
+  background: var(--bcm-roast);
+  border: 1px solid var(--bcm-line-strong);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  color: var(--bcm-crema);
+  font-size: var(--step-0);
+  min-height: 44px;
+}
+
+.input::placeholder {
+  color: var(--bcm-ash-dim);
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--bcm-accent);
+  outline-offset: 2px;
+}
+
+.followers {
+  appearance: textfield;
+}
+
+.followers::-webkit-outer-spin-button,
+.followers::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.error {
+  font-size: var(--step--1);
+  color: var(--status-danger);
+}
+
+.addWrap {
+  position: relative;
+}
+
+.add {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--bcm-line-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--bcm-ash);
+  font-size: var(--step--1);
+  transition: color var(--duration-base) var(--ease), border-color var(--duration-base) var(--ease);
+}
+
+.add:hover {
+  color: var(--bcm-crema);
+  border-color: var(--bcm-accent);
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  z-index: 20;
+  min-width: 200px;
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  background: var(--bcm-roast);
+  border: 1px solid var(--bcm-line-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+.menuItem {
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  text-align: left;
+  font-size: var(--step-0);
+  color: var(--bcm-crema);
+  transition: background var(--duration-fast) var(--ease), color var(--duration-fast) var(--ease);
+}
+
+.menuItem:hover {
+  background: var(--bcm-roast-hi);
+  color: var(--bcm-accent);
+}

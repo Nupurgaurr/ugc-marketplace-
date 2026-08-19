@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getCreatorQueue, isCurrentUserAdmin } from '@/lib/data/admin';
 import { ROUTES } from '@/lib/routes';
 
-export const metadata = { title: 'Creator approvals — blackcoffee. UGC' };
+export const metadata = { title: 'Creator approvals · blackcoffee. UGC' };
 
 export default async function AdminCreatorsPage() {
   const supabase = createClient();

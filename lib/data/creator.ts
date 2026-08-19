@@ -4,7 +4,7 @@ import type { Creator, MaskedPayoutDetails, SampleLink, SocialProfile } from '@/
 
 /**
  * Server-side reads for the signed-in creator. Every query here runs under
- * the user's own session, so RLS is what scopes it to their row — none of
+ * the user's own session, so RLS is what scopes it to their row. None of
  * these functions filter by id defensively, because the database already
  * refuses to return anyone else's.
  */

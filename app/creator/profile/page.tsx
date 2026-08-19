@@ -3,9 +3,9 @@ import CreatorShell from '@/components/creator/CreatorShell';
 import ProfileEditor from '@/components/creator/ProfileEditor';
 import { getCurrentCreator, getSampleLinks, getSocialProfiles } from '@/lib/data/creator';
 import { ROUTES } from '@/lib/routes';
-import type { CreatorProfile } from '@/lib/schemas/creator';
+import type { CreatorProfileInput } from '@/lib/schemas/creator';
 
-export const metadata = { title: 'Profile — blackcoffee. UGC' };
+export const metadata = { title: 'Profile · blackcoffee. UGC' };
 
 export default async function CreatorProfilePage() {
   const creator = await getCurrentCreator();
@@ -17,13 +17,17 @@ export default async function CreatorProfilePage() {
     getSampleLinks(creator.id),
   ]);
 
-  const profile: CreatorProfile = {
+  const profile: CreatorProfileInput = {
     bio: creator.bio,
     availability: creator.availability,
     categoryId: creator.category_id ?? '',
     contentStyles: creator.content_styles,
     languages: creator.languages,
-    socialProfiles: socialProfiles.map((p) => ({ platform: p.platform, handle: p.handle })),
+    socialProfiles: socialProfiles.map((p) => ({
+      platform: p.platform,
+      handle: p.handle,
+      followerCount: p.follower_count,
+    })),
     sampleLinks: sampleLinks.map((l) => l.url),
   };
 

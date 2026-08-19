@@ -113,6 +113,7 @@ export interface Database {
           platform: SocialPlatform;
           handle: string;
           is_primary: boolean;
+          follower_count: number | null;
           created_at: string;
         };
         Insert: {
@@ -121,6 +122,7 @@ export interface Database {
           platform: SocialPlatform;
           handle: string;
           is_primary?: boolean;
+          follower_count?: number | null;
           created_at?: string;
         };
         Update: {
@@ -129,6 +131,7 @@ export interface Database {
           platform?: SocialPlatform;
           handle?: string;
           is_primary?: boolean;
+          follower_count?: number | null;
           created_at?: string;
         };
         Relationships: [];

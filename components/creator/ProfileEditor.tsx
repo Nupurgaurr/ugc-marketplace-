@@ -7,7 +7,7 @@ import { z } from 'zod';
 import FormField from '@/components/shared/FormField';
 import Button from '@/components/shared/Button';
 import { saveProfile } from '@/app/actions/profile';
-import type { CreatorProfile } from '@/lib/schemas/creator';
+import { creatorProfileSchema, type CreatorProfileInput } from '@/lib/schemas/creator';
 import styles from './creator.module.css';
 
 /** Task 2 makes bio and availability real. Category, content styles,
@@ -21,7 +21,7 @@ const editableSchema = z.object({
 
 type Editable = z.infer<typeof editableSchema>;
 
-export default function ProfileEditor({ profile }: { profile: CreatorProfile }) {
+export default function ProfileEditor({ profile }: { profile: CreatorProfileInput }) {
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -37,7 +37,12 @@ export default function ProfileEditor({ profile }: { profile: CreatorProfile }) 
   const onSubmit = (values: Editable) => {
     setMessage(null);
     startTransition(async () => {
-      const result = await saveProfile({ ...profile, ...values });
+      const parsed = creatorProfileSchema.safeParse({ ...profile, ...values });
+      if (!parsed.success) {
+        setMessage({ ok: false, text: parsed.error.issues[0].message });
+        return;
+      }
+      const result = await saveProfile(parsed.data);
       setMessage({ ok: result.ok, text: result.message });
     });
   };

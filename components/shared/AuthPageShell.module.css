@@ -1,11 +1,11 @@
 .page {
-  min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
 }
 
 .top {
-  padding: 1.6rem var(--gutter);
+  padding: var(--space-5) var(--gutter);
 }
 
 .brand {
@@ -22,7 +22,7 @@
   flex: 1;
   display: flex;
   align-items: center;
-  padding: 2rem var(--gutter) 5rem;
+  padding: var(--space-6) var(--gutter) var(--space-8);
 }
 
 .inner {
@@ -31,12 +31,12 @@
 
 .title {
   text-align: center;
-  margin-bottom: 2.6rem;
+  margin-bottom: var(--space-7);
 }
 
 .foot {
   text-align: center;
-  margin-top: 1.6rem;
+  margin-top: var(--space-5);
   font-size: var(--step--1);
   color: var(--bcm-ash);
 }

@@ -1,6 +1,6 @@
 import LoginForm from '@/components/admin/LoginForm';
 
-export const metadata = { title: 'Admin — blackcoffee. UGC' };
+export const metadata = { title: 'Admin · blackcoffee. UGC' };
 
 export default function AdminLoginPage() {
   return (

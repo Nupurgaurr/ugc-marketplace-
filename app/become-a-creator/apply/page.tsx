@@ -4,7 +4,7 @@ import RegisterWizard from '@/components/creator/RegisterWizard';
 import { getCategories, getContentStyles } from '@/lib/data/options';
 import { ROUTES } from '@/lib/routes';
 
-export const metadata = { title: 'Lights, camera, apply. — blackcoffee. UGC' };
+export const metadata = { title: 'Lights, camera, apply. · blackcoffee. UGC' };
 
 export default async function CreatorApplyPage() {
   const [categories, contentStyles] = await Promise.all([getCategories(), getContentStyles()]);

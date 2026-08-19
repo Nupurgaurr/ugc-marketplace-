@@ -2,50 +2,77 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import WizardShell from '@/components/shared/WizardShell';
-import FormField, { formFieldStyles } from '@/components/shared/FormField';
-import { Chip } from '@/components/shared/Tag';
-import MemeBeat from './MemeBeat';
+import { Controller, useForm, type FieldPath } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Check } from 'lucide-react';
+import Button from '@/components/shared/Button';
+import FormField from '@/components/shared/FormField';
+import { OptionTileGroup, type Option } from '@/components/shared/OptionTile';
+import MemeBeat, { type Beat } from './MemeBeat';
+import SocialProfilesField from './SocialProfilesField';
+import SampleLinksField from './SampleLinksField';
 import { submitApplication } from '@/app/actions/application';
-import { creatorApplicationSchema, type CreatorApplication } from '@/lib/schemas/creator';
+import {
+  creatorApplicationSchema,
+  type CreatorApplication,
+  type CreatorApplicationInput,
+} from '@/lib/schemas/creator';
 import { RATE_BAND_OPTIONS, SHOOT_SETUP_OPTIONS, TURNAROUND_OPTIONS } from '@/lib/options';
 import { LANGUAGES } from '@/lib/languages';
 import { ROUTES } from '@/lib/routes';
+import { cx } from '@/lib/utils';
 import type { Category, ContentStyle } from '@/lib/types';
-import styles from './creator.module.css';
+import styles from './RegisterWizard.module.css';
 
-const STEP_LABELS = ['Naam & thikana', 'Genre', 'Zubaan', 'Setup & speed', 'Dikhao kaam'];
-
-const MEME_BEATS = [
-  { line: 'Har entry mein thoda drama hona chahiye.', caption: 'Scene 1: you, but main-character energy.' },
-  { line: 'Apna genre, apna swag, no copy-paste allowed.', caption: 'Pick your lane like it is the opening credits.' },
-  { line: 'Jitni zubaan, utna reach.', caption: 'Dialogue delivery matters. So does language reach.' },
-  { line: 'Setup chhota ho ya bada, speed hi hero hai.', caption: 'Brands forgive a lot. Late delivery is not one of them.' },
-  { line: 'Ab dikhao asli talent, links bhejo, drama nahi.', caption: 'This is the item number of your application.' },
+const STEPS: Array<{ label: string; beat: Beat; variant: 'card' | 'line' }> = [
+  {
+    label: 'Naam & thikana',
+    beat: {
+      line: 'Har entry mein thoda drama hona chahiye.',
+      caption: 'Scene 1: you, but main-character energy.',
+    },
+    variant: 'card',
+  },
+  {
+    label: 'Genre',
+    beat: { line: 'Apna genre, apna swag. No copy-paste allowed.' },
+    variant: 'line',
+  },
+  {
+    label: 'Zubaan',
+    beat: { line: 'Jitni zubaan, utna reach.' },
+    variant: 'line',
+  },
+  {
+    label: 'Setup & speed',
+    beat: { line: 'Setup chhota ho ya bada, speed hi hero hai.' },
+    variant: 'line',
+  },
+  {
+    label: 'Dikhao kaam',
+    beat: {
+      line: 'Ab dikhao asli talent. Links bhejo, drama nahi.',
+      caption: 'This is the item number of your application.',
+    },
+    variant: 'card',
+  },
 ];
 
-const EMPTY: CreatorApplication = {
-  fullName: '',
-  city: '',
-  phone: '',
-  email: '',
-  categoryId: '',
-  contentStyles: [],
-  languages: [],
-  shootSetup: 'phone',
-  turnaround: '48h',
-  rateBand: 'under_10k',
-  socialProfiles: [{ platform: 'instagram', handle: '' }],
-  sampleLinks: [],
-};
-
-const STEP_FIELDS: Array<Array<keyof CreatorApplication>> = [
+/** Which fields each step is allowed to complain about. */
+const STEP_FIELDS: Array<FieldPath<CreatorApplicationInput>[]> = [
   ['fullName', 'city', 'phone', 'email'],
   ['categoryId', 'contentStyles'],
   ['languages'],
   ['shootSetup', 'turnaround', 'rateBand'],
   ['socialProfiles', 'sampleLinks'],
 ];
+
+const LANGUAGE_OPTIONS: Option[] = LANGUAGES.map((l) => ({
+  value: l.value,
+  label: l.label,
+  script: l.value !== 'english',
+  rtl: l.rtl,
+}));
 
 export default function RegisterWizard({
   categories,
@@ -56,178 +83,318 @@ export default function RegisterWizard({
 }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [form, setForm] = useState<CreatorApplication>(EMPTY);
-  const [error, setError] = useState('');
+  const [submitError, setSubmitError] = useState('');
   const [isPending, startTransition] = useTransition();
 
-  const set = <K extends keyof CreatorApplication>(key: K, value: CreatorApplication[K]) =>
-    setForm((f) => ({ ...f, [key]: value }));
+  const {
+    register,
+    control,
+    handleSubmit,
+    trigger,
+    getValues,
+    formState: { errors },
+  } = useForm<CreatorApplicationInput, unknown, CreatorApplication>({
+    resolver: zodResolver(creatorApplicationSchema),
+    // Validate when a field is left, then keep it live so an error clears the
+    // moment it is fixed rather than staying red until the next submit.
+    mode: 'onTouched',
+    defaultValues: {
+      fullName: '',
+      city: '',
+      phone: '',
+      email: '',
+      categoryId: '',
+      contentStyles: [],
+      languages: [],
+      shootSetup: undefined,
+      turnaround: undefined,
+      rateBand: undefined,
+      socialProfiles: [{ platform: 'instagram', handle: '', followerCount: null }],
+      sampleLinks: [],
+    },
+  });
 
-  const toggleMulti = (key: 'contentStyles' | 'languages', value: string) =>
-    setForm((f) => ({
-      ...f,
-      [key]: f[key].includes(value) ? f[key].filter((v) => v !== value) : [...f[key], value],
-    }));
+  const isLast = step === STEPS.length - 1;
 
-  /** Validate only the fields this step owns, using the same schema the
-   *  route handler runs. */
-  const validateStep = (): string => {
-    const result = creatorApplicationSchema.safeParse(form);
-    if (result.success) return '';
-    const owned = STEP_FIELDS[step];
-    const issue = result.error.issues.find((i) => owned.includes(i.path[0] as keyof CreatorApplication));
-    return issue?.message ?? '';
+  const goNext = async () => {
+    setSubmitError('');
+    const valid = await trigger(STEP_FIELDS[step]);
+    if (!valid) return;
+    setStep((s) => s + 1);
   };
 
-  const handleNext = () => {
-    const stepError = validateStep();
-    if (stepError) {
-      setError(stepError);
-      return;
-    }
-    setError('');
-
-    if (step < STEP_LABELS.length - 1) {
-      setStep((s) => s + 1);
-      return;
-    }
-
+  const onSubmit = (application: CreatorApplication) => {
+    setSubmitError('');
     startTransition(async () => {
-      const result = await submitApplication(form);
+      const result = await submitApplication(application);
       if (!result.ok) {
-        setError(result.message);
+        setSubmitError(result.message);
         return;
       }
       router.push(ROUTES.creator.dashboard);
     });
   };
 
-  const categoryLabel = categories.find((c) => c.id === form.categoryId)?.label ?? '';
-  const instagram = form.socialProfiles[0];
+  const categoryOptions: Option[] = categories.map((c) => ({ value: c.id, label: c.label }));
+  const styleOptions: Option[] = contentStyles.map((s) => ({ value: s.slug, label: s.label }));
+
+  const socialErrors = Array.isArray(errors.socialProfiles)
+    ? Object.fromEntries(
+        errors.socialProfiles.map((entry, i) => [i, entry?.handle?.message ?? entry?.followerCount?.message])
+      )
+    : undefined;
+
+  const sampleErrors = Array.isArray(errors.sampleLinks)
+    ? Object.fromEntries(errors.sampleLinks.map((entry, i) => [i, entry?.message]))
+    : undefined;
 
   return (
-    <WizardShell
-      stepLabels={STEP_LABELS}
-      activeIndex={step}
-      onBack={() => setStep((s) => Math.max(0, s - 1))}
-      onNext={handleNext}
-      isLast={step === STEP_LABELS.length - 1}
-      nextLabel="Aage badho"
-      submitting={isPending}
-    >
-      <MemeBeat {...MEME_BEATS[step]} />
+    <form className={styles.layout} onSubmit={handleSubmit(onSubmit)} noValidate>
+      <aside className={styles.rail}>
+        <ol className={styles.steps}>
+          {STEPS.map((s, i) => (
+            <li
+              key={s.label}
+              className={cx(
+                styles.step,
+                i < step && styles.stepDone,
+                i === step && styles.stepNow
+              )}
+              aria-current={i === step ? 'step' : undefined}
+            >
+              <span className={styles.stepIndex}>
+                {i < step ? <Check size={13} aria-hidden="true" /> : i + 1}
+              </span>
+              <span className={styles.stepLabel}>{s.label}</span>
+            </li>
+          ))}
+        </ol>
 
-      {error && <p className={styles.wizardError}>{error}</p>}
-
-      {step === 0 && (
-        <div className={styles.wizardFields}>
-          <FormField label="Full name" placeholder="Your name" value={form.fullName} onChange={(e) => set('fullName', e.target.value)} />
-          <FormField label="City" placeholder="e.g. Mumbai" value={form.city} onChange={(e) => set('city', e.target.value)} />
-          <FormField label="Phone / WhatsApp" type="tel" placeholder="+91" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
-          <FormField label="Email" type="email" placeholder="you@email.com" value={form.email} onChange={(e) => set('email', e.target.value)} />
+        <div className={styles.beat}>
+          <MemeBeat {...STEPS[step].beat} variant={STEPS[step].variant} />
         </div>
-      )}
+      </aside>
 
-      {step === 1 && (
-        <div className={styles.wizardGroups}>
-          <div>
-            <p className={styles.wizardLabel}>Your main category</p>
-            <div className={formFieldStyles.chips}>
-              {categories.map((c) => (
-                <Chip key={c.id} active={form.categoryId === c.id} onClick={() => set('categoryId', c.id)}>
-                  {c.label}
-                </Chip>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className={styles.wizardLabel}>Content styles you shoot</p>
-            <div className={formFieldStyles.chips}>
-              {contentStyles.map((s) => (
-                <Chip key={s.id} active={form.contentStyles.includes(s.slug)} onClick={() => toggleMulti('contentStyles', s.slug)}>
-                  {s.label}
-                </Chip>
-              ))}
-            </div>
-          </div>
+      <div className={styles.panel}>
+        <div className={styles.fields}>
+          {step === 0 && (
+            <>
+              <FormField label="Full name" placeholder="Your name" error={errors.fullName?.message} {...register('fullName')} />
+              <FormField label="City" placeholder="e.g. Mumbai" error={errors.city?.message} {...register('city')} />
+              <FormField label="Phone / WhatsApp" type="tel" placeholder="+91" error={errors.phone?.message} {...register('phone')} />
+              <FormField label="Email" type="email" placeholder="you@email.com" error={errors.email?.message} {...register('email')} />
+            </>
+          )}
+
+          {step === 1 && (
+            <>
+              <fieldset className={styles.group}>
+                <legend className={styles.groupLabel}>Your main category</legend>
+                <Controller
+                  control={control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <OptionTileGroup
+                      label="Your main category"
+                      options={categoryOptions}
+                      value={field.value}
+                      multiple={false}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+                {errors.categoryId && <p className={styles.error}>{errors.categoryId.message}</p>}
+              </fieldset>
+
+              <fieldset className={styles.group}>
+                <legend className={styles.groupLabel}>Content styles you shoot</legend>
+                <Controller
+                  control={control}
+                  name="contentStyles"
+                  render={({ field }) => (
+                    <OptionTileGroup
+                      label="Content styles you shoot"
+                      options={styleOptions}
+                      value={field.value}
+                      multiple
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+                {errors.contentStyles && <p className={styles.error}>{errors.contentStyles.message}</p>}
+              </fieldset>
+            </>
+          )}
+
+          {step === 2 && (
+            <fieldset className={styles.group}>
+              <legend className={styles.groupLabel}>Languages you shoot in</legend>
+              <Controller
+                control={control}
+                name="languages"
+                render={({ field }) => (
+                  <OptionTileGroup
+                    label="Languages you shoot in"
+                    options={LANGUAGE_OPTIONS}
+                    value={field.value}
+                    multiple
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+              {errors.languages && <p className={styles.error}>{errors.languages.message}</p>}
+            </fieldset>
+          )}
+
+          {step === 3 && (
+            <>
+              <fieldset className={styles.group}>
+                <legend className={styles.groupLabel}>What do you shoot on</legend>
+                <Controller
+                  control={control}
+                  name="shootSetup"
+                  render={({ field }) => (
+                    <OptionTileGroup
+                      label="What do you shoot on"
+                      options={SHOOT_SETUP_OPTIONS.map((o) => ({ ...o }))}
+                      value={field.value ?? ''}
+                      multiple={false}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+                {errors.shootSetup && <p className={styles.error}>{errors.shootSetup.message}</p>}
+              </fieldset>
+
+              <fieldset className={styles.group}>
+                <legend className={styles.groupLabel}>Usual turnaround</legend>
+                <Controller
+                  control={control}
+                  name="turnaround"
+                  render={({ field }) => (
+                    <OptionTileGroup
+                      label="Usual turnaround"
+                      options={TURNAROUND_OPTIONS.map((o) => ({ ...o }))}
+                      value={field.value ?? ''}
+                      multiple={false}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+                {errors.turnaround && <p className={styles.error}>{errors.turnaround.message}</p>}
+              </fieldset>
+
+              <fieldset className={styles.group}>
+                <legend className={styles.groupLabel}>Rate per video</legend>
+                <Controller
+                  control={control}
+                  name="rateBand"
+                  render={({ field }) => (
+                    <OptionTileGroup
+                      label="Rate per video"
+                      options={RATE_BAND_OPTIONS.map((o) => ({ ...o }))}
+                      value={field.value ?? ''}
+                      multiple={false}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+                {errors.rateBand && <p className={styles.error}>{errors.rateBand.message}</p>}
+              </fieldset>
+            </>
+          )}
+
+          {step === 4 && (
+            <>
+              <fieldset className={styles.group}>
+                <legend className={styles.groupLabel}>Where people can find you</legend>
+                <Controller
+                  control={control}
+                  name="socialProfiles"
+                  render={({ field }) => (
+                    <SocialProfilesField
+                      value={field.value}
+                      onChange={field.onChange}
+                      errors={socialErrors}
+                    />
+                  )}
+                />
+                {typeof errors.socialProfiles?.message === 'string' && (
+                  <p className={styles.error}>{errors.socialProfiles.message}</p>
+                )}
+              </fieldset>
+
+              <fieldset className={styles.group}>
+                <legend className={styles.groupLabel}>Sample links</legend>
+                <p className={styles.groupHint}>Optional, up to three. Instagram reels are perfect.</p>
+                <Controller
+                  control={control}
+                  name="sampleLinks"
+                  render={({ field }) => (
+                    <SampleLinksField
+                      value={field.value ?? []}
+                      onChange={field.onChange}
+                      errors={sampleErrors}
+                    />
+                  )}
+                />
+              </fieldset>
+
+              <ReviewSummary values={getValues()} categories={categories} />
+            </>
+          )}
+
+          {submitError && <p className={styles.error}>{submitError}</p>}
         </div>
-      )}
 
-      {step === 2 && (
-        <div>
-          <p className={styles.wizardLabel}>Languages you shoot in</p>
-          <div className={formFieldStyles.chips}>
-            {LANGUAGES.map((l) => (
-              <Chip key={l.value} active={form.languages.includes(l.value)} onClick={() => toggleMulti('languages', l.value)}>
-                {l.label}
-              </Chip>
-            ))}
-          </div>
+        <div className={styles.footer}>
+          <Button variant="ghost" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}>
+            Back
+          </Button>
+
+          {isLast ? (
+            <Button type="submit" variant="primary" disabled={isPending}>
+              {isPending ? 'Bhej rahe hain' : 'Submit'}
+            </Button>
+          ) : (
+            <Button variant="primary" arrow onClick={goNext}>
+              Aage badho
+            </Button>
+          )}
         </div>
-      )}
+      </div>
+    </form>
+  );
+}
 
-      {step === 3 && (
-        <div className={styles.wizardGroups}>
-          <div>
-            <p className={styles.wizardLabel}>What do you shoot on</p>
-            <div className={formFieldStyles.chips}>
-              {SHOOT_SETUP_OPTIONS.map((o) => (
-                <Chip key={o.value} active={form.shootSetup === o.value} onClick={() => set('shootSetup', o.value)}>
-                  {o.label}
-                </Chip>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className={styles.wizardLabel}>Usual turnaround</p>
-            <div className={formFieldStyles.chips}>
-              {TURNAROUND_OPTIONS.map((o) => (
-                <Chip key={o.value} active={form.turnaround === o.value} onClick={() => set('turnaround', o.value)}>
-                  {o.label}
-                </Chip>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className={styles.wizardLabel}>Rate per video</p>
-            <div className={formFieldStyles.chips}>
-              {RATE_BAND_OPTIONS.map((o) => (
-                <Chip key={o.value} active={form.rateBand === o.value} onClick={() => set('rateBand', o.value)}>
-                  {o.label}
-                </Chip>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+function ReviewSummary({
+  values,
+  categories,
+}: {
+  values: CreatorApplicationInput;
+  categories: Category[];
+}) {
+  const category = categories.find((c) => c.id === values.categoryId)?.label ?? '';
+  const languages = values.languages
+    .map((v) => LANGUAGES.find((l) => l.value === v)?.label ?? v)
+    .join(', ');
 
-      {step === 4 && (
-        <div className={styles.wizardGroups}>
-          <FormField
-            label="Instagram handle"
-            placeholder="@yourhandle"
-            value={instagram?.handle ?? ''}
-            onChange={(e) => set('socialProfiles', [{ platform: 'instagram', handle: e.target.value }])}
-          />
-
-          <div className={styles.reviewSummary}>
-            <p className={styles.reviewTitle}>Interval ho gaya. Last look before submit.</p>
-            <p>
-              <strong>{form.fullName}</strong> · {form.city}
-            </p>
-            <p>
-              {form.phone} · {form.email}
-            </p>
-            <p>
-              {categoryLabel} · {form.contentStyles.join(', ')}
-            </p>
-            <p>{form.languages.join(', ')}</p>
-            <p className={styles.reviewNote}>
-              A real person reviews this, usually within 48 hours. Track your status from the dashboard.
-            </p>
-          </div>
-        </div>
-      )}
-    </WizardShell>
+  return (
+    <div className={styles.review}>
+      <p className={styles.reviewTitle}>Interval ho gaya. Last look before submit.</p>
+      <p>
+        <strong>{values.fullName}</strong> · {values.city}
+      </p>
+      <p>
+        {values.phone} · {values.email}
+      </p>
+      <p>
+        {category} · {values.contentStyles.join(', ')}
+      </p>
+      <p className={styles.reviewScript}>{languages}</p>
+      <p className={styles.reviewNote}>
+        A real person reviews this, usually within 48 hours. Track your status from the dashboard.
+      </p>
+    </div>
   );
 }

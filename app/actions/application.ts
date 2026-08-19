@@ -14,7 +14,7 @@ export interface SubmitResult {
  * create the auth user, sign them in, write the record as `applied`, and
  * hand the caller back to the dashboard.
  *
- * The service role is used for exactly one step — minting the auth user,
+ * The service role is used for exactly one step, minting the auth user,
  * which cannot happen under a session that does not exist yet. Everything
  * after that runs under the creator's own session so RLS checks the writes.
  */
@@ -97,6 +97,7 @@ export async function submitApplication(input: CreatorApplication): Promise<Subm
       creator_id: creator.id,
       platform: profile.platform,
       handle: profile.handle,
+      follower_count: profile.followerCount,
       is_primary: profile.platform === 'instagram',
     }))
   );

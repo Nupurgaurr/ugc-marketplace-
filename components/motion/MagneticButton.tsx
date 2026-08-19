@@ -5,7 +5,7 @@ import gsap from 'gsap';
 import { prefersReducedMotion } from '@/lib/animation/gsapConfig';
 
 /** Wraps any element and pulls it toward the cursor within `radius`px,
- *  snapping back on leave. Used on primary CTAs — see PROJECT_REPORT.md's
+ *  snapping back on leave. Used on primary CTAs. See PROJECT_REPORT.md's
  *  interaction inventory. */
 export default function MagneticButton({
   children,

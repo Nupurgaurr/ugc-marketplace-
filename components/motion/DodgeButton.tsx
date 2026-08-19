@@ -5,7 +5,7 @@ import gsap from 'gsap';
 import { prefersReducedMotion } from '@/lib/animation/gsapConfig';
 
 /** A button that flees the cursor when it gets close, capped at
- *  `maxDodges`. After the cap it goes still and calls `onSettled()` — the
+ *  `maxDodges`. After the cap it goes still and calls `onSettled()`. The
  *  joke has to end, the button becomes a real click target again. Used for
  *  the "Nahi" button on the Roast page. */
 export default function DodgeButton({

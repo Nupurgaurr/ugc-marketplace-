@@ -13,7 +13,7 @@ const WORD_SEQUENCE = ['WAITING', 'STILL WAITING', 'SERIOUSLY, GO OUTSIDE'];
 const IDLE_MS = 10000;
 
 /** The most boring moment in the product, made into a toy. Rendered instead
- *  of the real dashboard while a creator/client account is still pending —
+ *  of the real dashboard while a an application is still pending,
  *  no sidebar, no fake dashboard behind it. */
 export default function PendingStage({ submittedAt }: { submittedAt: string }) {
   const [wordIndex, setWordIndex] = useState(0);

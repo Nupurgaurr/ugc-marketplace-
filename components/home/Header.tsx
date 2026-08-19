@@ -8,7 +8,7 @@ import { cx } from '@/lib/utils';
 import styles from './Header.module.css';
 
 /** Logo left, hamburger right, at every breakpoint. It never becomes a
- *  horizontal nav — the menu holds two destinations and that is the whole
+ *  horizontal nav. The menu holds two destinations and that is the whole
  *  navigation surface of the product. */
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);

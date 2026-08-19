@@ -15,5 +15,3 @@ export default function FormField({ label, error, id, ...inputProps }: FormField
     </label>
   );
 }
-
-export { styles as formFieldStyles };

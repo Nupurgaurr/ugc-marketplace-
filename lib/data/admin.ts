@@ -3,7 +3,7 @@ import type { AdminNote, Creator } from '@/lib/types';
 
 /**
  * BCM-side reads. These return rows only because the caller's session is in
- * the `admins` table — the policies on `creators` and `admin_notes` are what
+ * the `admins` table. The policies on `creators` and `admin_notes` are what
  * decide that, not this file.
  *
  * Payout details are deliberately absent. No admin surface reads them.

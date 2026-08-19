@@ -21,7 +21,7 @@ export default function AuthPageShell({
       </div>
       <div className={styles.body}>
         <div className={`container ${styles.inner}`}>
-          <h1 className={`display ${styles.title}`} style={{ textAlign: 'center' }}>
+          <h1 className={`display ${styles.title}`}>
             {title}
           </h1>
           {children}

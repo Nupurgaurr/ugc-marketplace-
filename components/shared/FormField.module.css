@@ -45,9 +45,3 @@
     grid-template-columns: 1fr;
   }
 }
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}

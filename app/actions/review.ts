@@ -18,7 +18,7 @@ const reviewSchema = z.object({
 
 /**
  * BCM moves an application through the pipeline. This is not where the
- * permission check lives — the `admins` policy on `creators` is, and a
+ * permission check lives. The `admins` policy on `creators` is, and a
  * non-admin session simply updates zero rows here.
  */
 export async function reviewCreator(creatorId: string, status: CreatorStatus): Promise<ReviewResult> {

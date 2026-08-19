@@ -1,0 +1,61 @@
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.tile {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--bcm-line-strong);
+  border-radius: var(--radius);
+  background: var(--bcm-roast);
+  color: var(--bcm-crema);
+  font-size: var(--step-0);
+  line-height: 1.3;
+  text-align: left;
+  transition: border-color var(--duration-base) var(--ease),
+    background var(--duration-base) var(--ease), color var(--duration-base) var(--ease);
+}
+
+.tile:hover {
+  background: var(--bcm-roast-hi);
+  border-color: var(--bcm-line-strong);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--bcm-accent);
+  outline-offset: 2px;
+}
+
+.tileOn {
+  border-color: var(--bcm-accent);
+  background: var(--bcm-accent-wash);
+}
+
+.tileOn:hover {
+  background: var(--bcm-accent-wash-strong);
+}
+
+/* Reserves the check's box in both states so selecting a tile never changes
+   its width and reflows the grid. */
+.check {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--bcm-accent);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+.checkOn {
+  opacity: 1;
+}
+
+/* Native-script labels: --font-body carries no Indic or Arabic glyphs. */
+.scriptLabel {
+  font-family: var(--font-indic);
+}
