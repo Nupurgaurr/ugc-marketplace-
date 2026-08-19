@@ -4,9 +4,25 @@
    ========================================================================== */
 
 :root {
-  --font-display: 'Bricolage Grotesque', 'Hanken Grotesk', system-ui, sans-serif;
-  --font-body: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+  --font-display: var(--font-display-loaded), 'Hanken Grotesk', system-ui, sans-serif;
+  --font-body: var(--font-body-loaded), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-mono-loaded), ui-monospace, 'SF Mono', monospace;
+
+  /* Indic and Arabic scripts. --font-body carries no glyphs for any of these,
+     so anything rendering a native-script label must use this stack. */
+  --font-indic:
+    var(--font-body-loaded),
+    var(--font-devanagari),
+    var(--font-tamil),
+    var(--font-telugu),
+    var(--font-bengali),
+    var(--font-gujarati),
+    var(--font-malayalam),
+    var(--font-gurmukhi),
+    var(--font-kannada),
+    var(--font-arabic),
+    system-ui,
+    sans-serif;
 
   --step--1: clamp(0.8rem, 0.77rem + 0.15vw, 0.875rem);
   --step-0: clamp(0.95rem, 0.91rem + 0.2vw, 1.05rem);

@@ -60,13 +60,15 @@
 
   /* ---- Motion ------------------------------------------------------- */
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* Every reveal in the product travels exactly this far. Longer distances
+     are what make a page feel like it is assembling itself. */
+  --reveal-y: 20px;
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast: 0.18s;
   --duration-base: 0.32s;
   --duration-slow: 0.6s;
 
-  /* ---- Portal accents (dashboards only — subtle differentiation) ---- */
-  --portal-client: var(--bcm-accent);
+  /* ---- Portal accent (dashboards only) ------------------------------ */
   --portal-creator: var(--bcm-accent);
   --portal-admin: var(--bcm-accent);
 }

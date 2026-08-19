@@ -1,20 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import IntroOverlay from './IntroOverlay';
 import Header from './Header';
-import Hero from './Hero';
+import ComingSoon from './ComingSoon';
 import Footer from './Footer';
 
 export default function HomePage() {
-  const [heroStart, setHeroStart] = useState(false);
+  const [entranceDone, setEntranceDone] = useState(false);
+  const onComplete = useCallback(() => setEntranceDone(true), []);
 
   return (
     <>
-      <IntroOverlay onComplete={() => setHeroStart(true)} />
+      <IntroOverlay onComplete={onComplete} />
       <Header />
       <main>
-        <Hero start={heroStart} />
+        <ComingSoon start={entranceDone} />
       </main>
       <Footer />
     </>

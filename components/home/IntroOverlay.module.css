@@ -6,32 +6,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-inline: var(--gutter);
   pointer-events: none;
 }
 
 .line {
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(2.4rem, 3vw + 1.6rem, 5.5rem);
+  font-weight: 600;
+  font-size: clamp(1.6rem, 5vw, 4rem);
+  letter-spacing: -0.03em;
   color: var(--bcm-crema);
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.3em;
 }
 
-.letter {
+/* Clips each word so it rises out of nothing rather than sliding over the
+   words beside it. */
+.wordMask {
+  display: inline-block;
+  overflow: hidden;
+  padding-block: 0.08em;
+}
+
+.word {
   display: inline-block;
   will-change: transform, opacity;
-}
-
-.cursor {
-  display: inline-block;
-  width: 0.09em;
-  margin-left: 0.05em;
-  background: var(--bcm-accent);
-  animation: blink 0.9s step-end infinite;
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
 }

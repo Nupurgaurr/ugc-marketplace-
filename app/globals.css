@@ -118,7 +118,7 @@ section[id] {
    failures / no-JS still renders (progressive enhancement, not hidden). */
 .reveal {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(var(--reveal-y));
 }
 
 @media (prefers-reduced-motion: reduce) {
