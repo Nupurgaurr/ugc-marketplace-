@@ -1,6 +1,6 @@
 # Handover Guide
 
-How this codebase is put together, and how to extend each piece. Read [PROJECT_REPORT.md](./PROJECT_REPORT.md) first for the what and why, and [DECISIONS.md](./DECISIONS.md) for why things are shaped the way they are. This is the how.
+How this codebase is put together, and how to extend each piece. Read [RULES.md](./RULES.md) first for what cannot change, [PROJECT_REPORT.md](./PROJECT_REPORT.md) for what the product is, and [DECISIONS.md](./DECISIONS.md) for why it is shaped this way. This is the how.
 
 ## Running it
 

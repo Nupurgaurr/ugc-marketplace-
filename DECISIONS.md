@@ -1,12 +1,27 @@
 # Decisions
 
-Why things are the way they are. Newest first. A decision only lands here once it is made, not while it is being argued about; open questions live in `PROJECT_REPORT.md`.
+Every decision on this project, open and closed. Closed ones are dated and **append only**: correct them with a new entry, never by editing an old one, or the record stops being worth keeping.
 
-Adding a dependency requires an entry here and agreement from both developers.
+What the product is and what state it is in: [PROJECT_REPORT.md](./PROJECT_REPORT.md). What constrains future work: [RULES.md](./RULES.md).
 
 ---
 
-## 2026-08-19: Marketplace to managed network
+## Open
+
+Things that need an answer, not things that need building.
+
+- **Who approves creators** while the full admin panel does not exist. The minimal queue in this repo works and is wired to real data, so the only question is whether Nupur's panel replaces it before launch. A creator can apply on day one, so someone needs a row in `admins` either way.
+- **Existing roster onboarding.** How BCM's roughly 100 current creators get imported and invited to claim a profile, and who chases them for their details. Nothing is built for this, and they must not be asked to fill in the application.
+- **Payout model.** Rate bands set by BCM versus creators quoting freely, payment split on casting versus on delivery, and TDS and GST handling. Needs BCM's CA before it is finalised. Phase 2, but the fields are captured from day one.
+- **Verifying payout details.** The `verified` flag exists and only the service role can set it. Nothing in the product sets it, so BCM flips it in the Supabase dashboard today. Decide whether that is good enough or whether it needs a surface.
+- **Portfolio video, revisited.** Phase 1 is links only and that is settled. If uploads are wanted later it means a hosting and transcode provider and a preview clip strategy, and it is its own piece of work rather than an addition to the form.
+- **Ownership of what shipped.** `PROJECT_REPORT` assigned Admin, the Supabase schema and `lib/data/*` to Nupur. The Phase 1 rebuild built all three. She should review `feat/phase-1-rebuild` before it merges, and the six dependencies below still need her agreement per RULES.md.
+
+---
+
+## Closed
+
+### 2026-08-19: Marketplace to managed network
 
 **The product is no longer a three sided marketplace. It is a Black Coffee Media managed UGC network.**
 
@@ -14,7 +29,7 @@ The old model had creators and brands both holding accounts, brands browsing and
 
 **Brands do not hold accounts and do not interact with creators through the product at all.** Work reaches a creator because BCM brings it to them, not because a brand found them in a grid.
 
-### Why
+#### Why
 
 The marketplace model was written against a rough, incomplete plan. Three things were wrong with it:
 
@@ -22,13 +37,13 @@ The marketplace model was written against a rough, incomplete plan. Three things
 - It put the hardest problems first. Discovery, briefs, pitching and matching are all Phase 2 problems that only matter once there is a roster online and a brand willing to self-serve. Neither is true yet.
 - It made admin a rubber stamp on a transaction rather than the operator of a roster, which is the opposite of how BCM actually works.
 
-### What this cost
+#### What this cost
 
 Task 1 deleted roughly 5,500 lines: `/client/*`, `/discover`, briefs end to end, pitches end to end, the requests system, admin reports, the admin overview, the client and brief approval queues, and every mock and seeded record behind them. The home page lost its work rail, how-it-works sequence, refusals list and split tiles, all of which existed to sell the marketplace to a brand.
 
 That is the right trade. None of it was load bearing for the thing being built, and leaving it in place would have meant maintaining two models at once.
 
-### What is still true from the old model
+#### What is still true from the old model
 
 The creator approval flow, unchanged in concept: a creator applies, the record is created as `applied`, they are signed in and land on a dashboard showing a waiting state, and BCM moves them to `in_review` then `approved` or `rejected`. That was always the good part.
 
@@ -36,7 +51,7 @@ The design system, the motion library, and the Hinglish voice on the creator fun
 
 ---
 
-## 2026-08-19: Supabase, and authorization in the database
+### 2026-08-19: Supabase, and authorization in the database
 
 Postgres, Auth, and RLS from one provider, with Next.js Route Handlers and Server Actions rather than a separate server.
 
@@ -47,7 +62,7 @@ Two consequences worth knowing:
 - Admin is membership in an `admins` table, checked by a `SECURITY DEFINER` function the policies call. It is not a role claim, and not the hardcoded `admin` / `blackcoffee2026` credential that used to sit in the source.
 - The service role key bypasses RLS entirely, so it is used in exactly two places: minting the auth user during application submit, which cannot happen under a session that does not exist yet, and BCM verifying payout details. `lib/supabase/admin.ts` imports `server-only` so using it from a client component is a build error.
 
-## 2026-08-19: Payout details are the strictest table in the project
+### 2026-08-19: Payout details are the strictest table in the project
 
 `creator_payout_details` holds account numbers, IFSC, UPI IDs and PAN. It gets treatment nothing else does:
 
@@ -56,7 +71,7 @@ Two consequences worth knowing:
 - The account and PAN numbers are masked to their last four digits in `lib/data/creator.ts` before they leave the server. The full values are never sent to the browser, which is why replacing them means entering them in full rather than editing a prefilled field.
 - Nothing logs the form's input.
 
-## 2026-08-19: Magic link, no passwords
+### 2026-08-19: Magic link, no passwords
 
 Supabase Auth email magic link for both creators and admins, delivered over Resend as Supabase's SMTP provider. No passwords, so no password reset flow, no password storage, and no credential to leak.
 
@@ -64,7 +79,7 @@ The returning-creator login passes `shouldCreateUser: false`. Without it anyone 
 
 Application submit is the one place this bends: it mints the auth user with the service role, then burns a one-time token immediately to establish the session, so a creator lands on their dashboard without going to their inbox first. They still get a link for next time.
 
-## 2026-08-19: Dependencies added
+### 2026-08-19: Dependencies added
 
 All pre-approved in the rebuild brief.
 
@@ -79,7 +94,7 @@ All pre-approved in the rebuild brief.
 
 Resend is **not** an npm dependency. It is configured as Supabase's SMTP provider in the dashboard, so Supabase sends the mail and the app never calls Resend directly.
 
-## 2026-08-19: One selector control
+### 2026-08-19: One selector control
 
 Bordered rectangular tiles with a check state (`components/shared/OptionTile.tsx`), used for every pick-from-a-set in the product: category, content styles, languages, shoot setup, turnaround, rate band, and the quiz on `/become-a-creator`.
 
@@ -87,7 +102,7 @@ This replaced oval outlined chips, which were rejected on sight. The `Tag`/`Chip
 
 Single and multi select differ only in ARIA role and in whether a click replaces or toggles. They are the same component because two selector components become three.
 
-## 2026-08-19: Application form shape
+### 2026-08-19: Application form shape
 
 Decided with Dhruv before the rebuild:
 
@@ -98,19 +113,19 @@ Decided with Dhruv before the rebuild:
 - **Follower count** is collected once beside the Instagram handle, and stored on the primary social profile row rather than on `creators`, because reach belongs to an account and a creator with three platforms has three numbers.
 - **Rate band stays**, even though BCM sets what a creator is paid. It is useful as an expectation-setting signal at application time.
 
-## 2026-08-19: Portfolio video is links only
+### 2026-08-19: Portfolio video is links only
 
 Phase 1 collects Instagram and other profile handles, plus up to three optional sample links. **No file uploads.**
 
 Real video upload means a hosting provider, a transcode pipeline, upload progress, storage limits and a moderation surface. That is its own piece of work and gets its own scoping. BCM watches the work where it already lives.
 
-## 2026-08-19: Languages render in their own script
+### 2026-08-19: Languages render in their own script
 
 Never transliterated into English. Hanken Grotesk carries no Devanagari, Tamil, Telugu, Bengali, Gujarati, Malayalam, Gurmukhi, Kannada or Arabic glyphs, so the nine matching Noto Sans subsets are loaded through `next/font` behind a `--font-indic` stack token. Without it the language list renders in nine different typefaces.
 
 Urdu is right to left, and `dir="rtl"` goes on the label element itself, never on its container, or the surrounding layout flips with it.
 
-## 2026-08-19: Home is a coming soon page
+### 2026-08-19: Home is a coming soon page
 
 One centred line, "Something good is brewing.", and nothing else in the body. No email capture: creators already have a route in through the menu, and a capture field would compete with the only action that matters.
 

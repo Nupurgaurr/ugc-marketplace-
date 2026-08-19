@@ -107,14 +107,7 @@ Admin rejection copy is the hard boundary on that voice. Always plain and respec
 
 Every meme slot in the narrative flow (`components/shared/MemeSlot.tsx`, driven by `content/memes.ts`) ships with `src` empty, so each slot falls back to its typographic caption. That is a deliberate placeholder pending licensed assets.
 
-### Non negotiable UI rules
-
-- No emojis anywhere, in any component or copy. Icons come from `lucide-react`.
-- No em dashes in any copy.
-- No dashed or dotted borders.
-- No pill or oval selectors with outline borders.
-- Every colour, size, spacing and duration comes from `styles/tokens.css` and `styles/typography.css`. No raw hex, no raw px in a component.
-- Languages render in their own script, not in English. Devanagari, Tamil, Telugu, Bengali, Gujarati, Malayalam, Gurmukhi, Kannada and Arabic glyphs need Noto Sans subsets loaded, since Hanken Grotesk does not carry them. Urdu is right to left.
+The non negotiable UI rules that follow from this voice, no emojis, no em dashes, no dashed borders, no pill selectors, no raw hex or px, languages in their own script, live in [RULES.md](./RULES.md). They are constraints on future work rather than a description of the product, which is why they sit there and not here.
 
 Accent colour: `#C4A370` on a dark, warm neutral canvas.
 
@@ -141,24 +134,8 @@ Next.js 14 (App Router), TypeScript, CSS Modules, GSAP. No CSS framework: a sing
 | API | Next.js Route Handlers and Server Actions. No separate server |
 | Hosting | Vercel, preview deploy per pull request |
 
-Adding a dependency requires an entry in `DECISIONS.md` and agreement from both developers.
+Every dependency in the project, and what it is for, is listed in [DECISIONS.md](./DECISIONS.md). The rule for adding one is in [RULES.md](./RULES.md).
 
-## 8. Open Decisions
+---
 
-Things that need an answer, not things that need building. Decisions already made are recorded in [DECISIONS.md](./DECISIONS.md).
-
-- **Who approves creators** while the full admin panel does not exist. The minimal queue in this repo works and is wired to real data, so the only question is whether Nupur's panel replaces it before launch. A creator can apply on day one, so someone needs a row in `admins` either way.
-- **Existing roster onboarding.** How BCM's roughly 100 current creators get imported and invited to claim a profile, and who chases them for their details. Nothing is built for this.
-- **Payout model.** Rate bands set by BCM versus creators quoting freely, payment split on casting versus on delivery, and TDS and GST handling. Needs BCM's CA before it is finalised. Phase 2, but the fields are captured from day one.
-- **Verifying payout details.** The `verified` flag exists and only the service role can set it. Nothing in the product sets it yet, so BCM currently flips it in the Supabase dashboard. Decide whether that is good enough or whether it needs a surface.
-- **Portfolio video.** Phase 1 is links only, decided. If uploads are wanted later that means a hosting and transcode provider and a preview clip strategy, and it is its own piece of work rather than an addition to the form.
-
-## 9. Ownership
-
-| Area | Owner |
-|---|---|
-| Public surface, home, become a creator, creator portal | Dhruv |
-| Admin, Supabase schema, `lib/data/*` | Nupur |
-| `styles/tokens.css`, `styles/typography.css`, `components/shared/*`, `lib/types.ts`, `lib/routes.ts` | Shared. Message the other person before editing. |
-
-Work happens on branches, never on `main`. One pull request per task.
+Decisions, open and closed, are in [DECISIONS.md](./DECISIONS.md). Ownership and process are in [RULES.md](./RULES.md).

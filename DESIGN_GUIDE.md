@@ -4,7 +4,7 @@ The single source of truth for color, type, spacing, motion, and shared componen
 
 **The rule for every stakeholder touching this project**: no component hardcodes a hex value, a px spacing number, or a `font-family`. Everything routes through a token. If you are about to type a colour or a font, stop and reach for the variable instead. §7 has the full list of rules that cannot bend.
 
-Companion docs: [PROJECT_REPORT.md](./PROJECT_REPORT.md) (what is built and why, including brand tone), [PAGE_CONTENT_MAP.md](./PAGE_CONTENT_MAP.md) (copy and features per screen), [SITEMAP.md](./SITEMAP.md) (routes), [DECISIONS.md](./DECISIONS.md) (why things are the way they are).
+Companion docs: [RULES.md](./RULES.md) (what cannot change), [PROJECT_REPORT.md](./PROJECT_REPORT.md) (what is built), [PAGE_CONTENT_MAP.md](./PAGE_CONTENT_MAP.md) (copy and features per screen), [SITEMAP.md](./SITEMAP.md) (routes), [DECISIONS.md](./DECISIONS.md) (why).
 
 ---
 
@@ -305,16 +305,7 @@ Full detail in `PROJECT_REPORT.md`, summarized here for quick reference while de
 
 ## 7. Non-negotiable rules
 
-These are not preferences. A change that breaks one of these is wrong even if it looks fine.
-
-- **No emojis.** Anywhere, in any component, in any copy. Every icon comes from `lucide-react`.
-- **No em dashes** in any copy, comment or page title. Use a comma, a full stop, or a colon.
-- **No dashed or dotted borders.**
-- **No pill or oval selectors with outline borders.** Selectors are `OptionTile`, see §5.2.
-- **No raw hex, px, or font-family in a component.** Every colour, size, spacing and duration comes from `styles/tokens.css` or `styles/typography.css`.
-- **Every animation respects `prefers-reduced-motion`**, and motion must have a reason: reveal, feedback, or orientation. Nothing decorative, nothing that blocks interaction, no scroll jacking. Kill every GSAP timeline and ScrollTrigger on unmount.
-- **Server Components by default.** `'use client'` only where there is state, an effect, or an event handler.
-- **Languages render in their own script**, never transliterated into English. See §2 for the font stack that makes that legible.
+They live in [RULES.md](./RULES.md), which is the single home for anything that constrains future work. The design-relevant ones in one line each: no emojis, no em dashes, no dashed borders, no pill selectors, no raw hex or px in a component, every animation respects `prefers-reduced-motion`, and languages render in their own script.
 
 ---
 

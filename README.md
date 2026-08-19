@@ -12,8 +12,9 @@ npm run dev
 
 The Supabase project has to exist first. Four setup steps in [supabase/README.md](./supabase/README.md).
 
-- **What this is and why** → [PROJECT_REPORT.md](./PROJECT_REPORT.md)
-- **Why things are shaped the way they are** → [DECISIONS.md](./DECISIONS.md)
+- **The rules every change has to follow** → [RULES.md](./RULES.md)
+- **What this is and what state it is in** → [PROJECT_REPORT.md](./PROJECT_REPORT.md)
+- **Every decision, open and closed** → [DECISIONS.md](./DECISIONS.md)
 - **How to run, extend and operate every piece** → [HANDOVER_GUIDE.md](./HANDOVER_GUIDE.md)
 - **Colour, type, spacing, motion, components** → [DESIGN_GUIDE.md](./DESIGN_GUIDE.md)
 - **Every route** → [SITEMAP.md](./SITEMAP.md)
