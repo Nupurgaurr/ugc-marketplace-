@@ -1,11 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import LetterField from '@/components/motion/LetterField';
 import MemeSlot from './MemeSlot';
-import { logout, type Role } from '@/lib/auth/mockAuth';
+import { signOut } from '@/app/actions/auth';
 import { formatDate } from '@/lib/utils';
 import { ROUTES } from '@/lib/routes';
 import styles from './PendingStage.module.css';
@@ -16,8 +15,7 @@ const IDLE_MS = 10000;
 /** The most boring moment in the product, made into a toy. Rendered instead
  *  of the real dashboard while a creator/client account is still pending —
  *  no sidebar, no fake dashboard behind it. */
-export default function PendingStage({ role, submittedAt }: { role: Role; submittedAt: string }) {
-  const router = useRouter();
+export default function PendingStage({ submittedAt }: { submittedAt: string }) {
   const [wordIndex, setWordIndex] = useState(0);
   const lastInteraction = useRef(Date.now());
 
@@ -42,24 +40,17 @@ export default function PendingStage({ role, submittedAt }: { role: Role; submit
     };
   }, []);
 
-  const loginHref = role === 'admin' ? ROUTES.admin.login : ROUTES.creator.login;
-
   return (
     <div className={styles.stage}>
       <div className={styles.top}>
         <Link href={ROUTES.home} className={styles.brand}>
           blackcoffee<span>.</span>
         </Link>
-        <button
-          type="button"
-          className={styles.logout}
-          onClick={() => {
-            logout(role);
-            router.push(loginHref);
-          }}
-        >
-          Log out
-        </button>
+        <form action={signOut}>
+          <button type="submit" className={styles.logout}>
+            Log out
+          </button>
+        </form>
       </div>
 
       <div className={styles.head}>
@@ -74,7 +65,7 @@ export default function PendingStage({ role, submittedAt }: { role: Role; submit
         </div>
       </div>
 
-      <div className={styles.footer}>Submitted {formatDate(submittedAt)} — we&rsquo;ll email you the moment a human decides.</div>
+      <div className={styles.footer}>Submitted {formatDate(submittedAt)}, we&rsquo;ll email you the moment a human decides.</div>
     </div>
   );
 }

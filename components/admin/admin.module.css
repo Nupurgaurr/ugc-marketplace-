@@ -116,3 +116,45 @@
   outline: none;
   border-color: var(--bcm-accent);
 }
+
+.authForm {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 420px;
+  margin-inline: auto;
+}
+
+.authNoteOk,
+.authNoteError {
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+
+.authNoteOk {
+  color: var(--status-success);
+}
+
+.authNoteError {
+  color: var(--status-danger);
+}
+
+.authHint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: var(--step--1);
+  color: var(--bcm-ash-dim);
+  text-align: center;
+}
+
+.queueError {
+  font-size: var(--step--1);
+  color: var(--status-danger);
+  margin-bottom: var(--space-4);
+}
+
+.muted {
+  color: var(--bcm-ash-dim);
+  font-size: var(--step--1);
+}

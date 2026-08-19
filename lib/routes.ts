@@ -12,6 +12,7 @@ export const ROUTES = {
     login: '/creator/login',
     dashboard: '/creator/dashboard',
     profile: '/creator/profile',
+    payouts: '/creator/payouts',
   },
 
   admin: {

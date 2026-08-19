@@ -1,50 +1,64 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import FormField from '@/components/shared/FormField';
 import Button from '@/components/shared/Button';
-import { useAuth } from '@/lib/auth/useAuth';
-import { getCreatorById } from '@/lib/data/creators';
+import { saveProfile } from '@/app/actions/profile';
+import type { CreatorProfile } from '@/lib/schemas/creator';
+import styles from './creator.module.css';
 
-export default function ProfileEditor() {
-  const { session } = useAuth('creator');
-  const creator = session ? getCreatorById(session.id) : undefined;
-  const [bio, setBio] = useState(creator?.bio ?? '');
-  const [availability, setAvailability] = useState(creator?.availability ?? '');
-  const [saved, setSaved] = useState(false);
+/** Task 2 makes bio and availability real. Category, content styles,
+ *  languages, social profiles and sample links become editable in Task 6;
+ *  until then they pass through untouched so the shared schema still
+ *  validates the whole profile. */
+const editableSchema = z.object({
+  bio: z.string().trim().max(600, 'Thoda chhota karo, 600 characters tak.'),
+  availability: z.string().trim().max(120),
+});
 
-  if (!creator) return null;
+type Editable = z.infer<typeof editableSchema>;
 
-  const save = () => {
-    creator.bio = bio;
-    creator.availability = availability;
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+export default function ProfileEditor({ profile }: { profile: CreatorProfile }) {
+  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Editable>({
+    resolver: zodResolver(editableSchema),
+    defaultValues: { bio: profile.bio, availability: profile.availability },
+  });
+
+  const onSubmit = (values: Editable) => {
+    setMessage(null);
+    startTransition(async () => {
+      const result = await saveProfile({ ...profile, ...values });
+      setMessage({ ok: result.ok, text: result.message });
+    });
   };
 
   return (
-    <div style={{ display: 'grid', gap: '1.2rem', maxWidth: '760px' }}>
-      <label style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-        <span style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash)' }}>Bio</span>
-        <textarea
-          rows={3}
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          style={{
-            background: 'var(--bcm-roast)',
-            border: '1px solid var(--bcm-line-strong)',
-            borderRadius: 'var(--radius)',
-            padding: '0.85rem 1rem',
-            color: 'var(--bcm-crema)',
-            fontSize: 'var(--step-0)',
-            resize: 'vertical',
-          }}
-        />
+    <form onSubmit={handleSubmit(onSubmit)} className={styles.profileForm}>
+      <label className={styles.textareaField}>
+        <span className={styles.textareaLabel}>Bio</span>
+        <textarea rows={3} className={styles.textarea} {...register('bio')} />
+        {errors.bio && <span className={styles.fieldError}>{errors.bio.message}</span>}
       </label>
-      <FormField label="Availability" value={availability} onChange={(e) => setAvailability(e.target.value)} />
-      <Button variant="primary" onClick={save}>
-        {saved ? 'Saved' : 'Save changes'}
+
+      <FormField label="Availability" error={errors.availability?.message} {...register('availability')} />
+
+      {message && (
+        <p className={message.ok ? styles.authNoteOk : styles.authNoteError}>{message.text}</p>
+      )}
+
+      <Button type="submit" variant="primary" disabled={isPending}>
+        {isPending ? 'Saving' : 'Save changes'}
       </Button>
-    </div>
+    </form>
   );
 }

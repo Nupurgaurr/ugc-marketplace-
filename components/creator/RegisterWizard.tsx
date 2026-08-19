@@ -1,84 +1,88 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import WizardShell from '@/components/shared/WizardShell';
 import FormField, { formFieldStyles } from '@/components/shared/FormField';
 import { Chip } from '@/components/shared/Tag';
 import MemeBeat from './MemeBeat';
-import { NICHES, CONTENT_STYLES, LANGUAGES, SHOOT_SETUPS, TURNAROUND_BANDS, RATE_BANDS } from '@/lib/data/creators';
-import { registerCreator, type CreatorRegistration } from '@/lib/auth/mockAuth';
+import { submitApplication } from '@/app/actions/application';
+import { creatorApplicationSchema, type CreatorApplication } from '@/lib/schemas/creator';
+import { RATE_BAND_OPTIONS, SHOOT_SETUP_OPTIONS, TURNAROUND_OPTIONS } from '@/lib/options';
+import { LANGUAGES } from '@/lib/languages';
 import { ROUTES } from '@/lib/routes';
+import type { Category, ContentStyle } from '@/lib/types';
+import styles from './creator.module.css';
 
 const STEP_LABELS = ['Naam & thikana', 'Genre', 'Zubaan', 'Setup & speed', 'Dikhao kaam'];
 
 const MEME_BEATS = [
-  { emoji: '🎬', line: 'Har entry mein thoda drama hona chahiye.', caption: 'Scene 1: you, but main-character energy.' },
-  { emoji: '🎤', line: 'Apna genre, apna swag — no copy-paste allowed.', caption: 'Pick your lane like it’s the opening credits.' },
-  { emoji: '🗣️', line: 'Jitni zubaan, utna reach.', caption: 'Dialogue delivery matters. So does language reach.' },
-  { emoji: '🎛️', line: 'Setup chhota ho ya bada, speed hi hero hai.', caption: 'Brands forgive a lot. Late delivery is not one of them.' },
-  { emoji: '🎥', line: 'Ab dikhao asli talent — links bhejo, drama nahi.', caption: 'This is the item number of your application.' },
+  { line: 'Har entry mein thoda drama hona chahiye.', caption: 'Scene 1: you, but main-character energy.' },
+  { line: 'Apna genre, apna swag, no copy-paste allowed.', caption: 'Pick your lane like it is the opening credits.' },
+  { line: 'Jitni zubaan, utna reach.', caption: 'Dialogue delivery matters. So does language reach.' },
+  { line: 'Setup chhota ho ya bada, speed hi hero hai.', caption: 'Brands forgive a lot. Late delivery is not one of them.' },
+  { line: 'Ab dikhao asli talent, links bhejo, drama nahi.', caption: 'This is the item number of your application.' },
 ];
 
-type FormState = CreatorRegistration;
-
-const INITIAL: FormState = {
-  name: '',
+const EMPTY: CreatorApplication = {
+  fullName: '',
   city: '',
   phone: '',
   email: '',
-  category: '',
+  categoryId: '',
   contentStyles: [],
   languages: [],
-  shootSetup: '',
-  turnaround: '',
-  rateBand: '',
-  handles: [],
+  shootSetup: 'phone',
+  turnaround: '48h',
+  rateBand: 'under_10k',
+  socialProfiles: [{ platform: 'instagram', handle: '' }],
+  sampleLinks: [],
 };
 
-export default function RegisterWizard() {
+const STEP_FIELDS: Array<Array<keyof CreatorApplication>> = [
+  ['fullName', 'city', 'phone', 'email'],
+  ['categoryId', 'contentStyles'],
+  ['languages'],
+  ['shootSetup', 'turnaround', 'rateBand'],
+  ['socialProfiles', 'sampleLinks'],
+];
+
+export default function RegisterWizard({
+  categories,
+  contentStyles,
+}: {
+  categories: Category[];
+  contentStyles: ContentStyle[];
+}) {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [form, setForm] = useState<FormState>(INITIAL);
-  const [handlesText, setHandlesText] = useState('');
+  const [form, setForm] = useState<CreatorApplication>(EMPTY);
   const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
+  const set = <K extends keyof CreatorApplication>(key: K, value: CreatorApplication[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  const toggleMulti = (key: 'contentStyles' | 'languages', value: string) => {
+  const toggleMulti = (key: 'contentStyles' | 'languages', value: string) =>
     setForm((f) => ({
       ...f,
       [key]: f[key].includes(value) ? f[key].filter((v) => v !== value) : [...f[key], value],
     }));
-  };
 
-  const validate = (): string => {
-    if (step === 0) {
-      if (!form.name.trim() || !form.city.trim() || !form.phone.trim() || !form.email.trim()) {
-        return 'Fill in your name, city, phone and email — the basics, na.';
-      }
-    }
-    if (step === 1) {
-      if (!form.category || form.contentStyles.length === 0) return 'Pick a category and at least one content style.';
-    }
-    if (step === 2) {
-      if (form.languages.length === 0) return 'Pick at least one language you shoot in.';
-    }
-    if (step === 3) {
-      if (!form.shootSetup || !form.turnaround || !form.rateBand) return 'Setup, turnaround and rate — sab chahiye.';
-    }
-    if (step === 4) {
-      if (!handlesText.trim()) return 'Drop at least one handle or sample link.';
-    }
-    return '';
+  /** Validate only the fields this step owns, using the same schema the
+   *  route handler runs. */
+  const validateStep = (): string => {
+    const result = creatorApplicationSchema.safeParse(form);
+    if (result.success) return '';
+    const owned = STEP_FIELDS[step];
+    const issue = result.error.issues.find((i) => owned.includes(i.path[0] as keyof CreatorApplication));
+    return issue?.message ?? '';
   };
 
   const handleNext = () => {
-    const validationError = validate();
-    if (validationError) {
-      setError(validationError);
+    const stepError = validateStep();
+    if (stepError) {
+      setError(stepError);
       return;
     }
     setError('');
@@ -88,17 +92,18 @@ export default function RegisterWizard() {
       return;
     }
 
-    setSubmitting(true);
-    const handles = handlesText
-      .split(',')
-      .map((h) => h.trim())
-      .filter(Boolean)
-      .slice(0, 3);
-    registerCreator({ ...form, handles });
-    setTimeout(() => router.push(ROUTES.creator.dashboard), 500);
+    startTransition(async () => {
+      const result = await submitApplication(form);
+      if (!result.ok) {
+        setError(result.message);
+        return;
+      }
+      router.push(ROUTES.creator.dashboard);
+    });
   };
 
-  const meme = MEME_BEATS[step];
+  const categoryLabel = categories.find((c) => c.id === form.categoryId)?.label ?? '';
+  const instagram = form.socialProfiles[0];
 
   return (
     <WizardShell
@@ -108,15 +113,15 @@ export default function RegisterWizard() {
       onNext={handleNext}
       isLast={step === STEP_LABELS.length - 1}
       nextLabel="Aage badho"
-      submitting={submitting}
+      submitting={isPending}
     >
-      <MemeBeat {...meme} />
+      <MemeBeat {...MEME_BEATS[step]} />
 
-      {error && <p style={{ color: 'var(--status-danger)', marginBottom: '1.2rem', fontSize: 'var(--step--1)' }}>{error}</p>}
+      {error && <p className={styles.wizardError}>{error}</p>}
 
       {step === 0 && (
-        <div style={{ display: 'grid', gap: '1.2rem' }}>
-          <FormField label="Full name" placeholder="Your name" value={form.name} onChange={(e) => set('name', e.target.value)} />
+        <div className={styles.wizardFields}>
+          <FormField label="Full name" placeholder="Your name" value={form.fullName} onChange={(e) => set('fullName', e.target.value)} />
           <FormField label="City" placeholder="e.g. Mumbai" value={form.city} onChange={(e) => set('city', e.target.value)} />
           <FormField label="Phone / WhatsApp" type="tel" placeholder="+91" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
           <FormField label="Email" type="email" placeholder="you@email.com" value={form.email} onChange={(e) => set('email', e.target.value)} />
@@ -124,23 +129,23 @@ export default function RegisterWizard() {
       )}
 
       {step === 1 && (
-        <div style={{ display: 'grid', gap: '1.6rem' }}>
+        <div className={styles.wizardGroups}>
           <div>
-            <p style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash)', marginBottom: '0.6rem' }}>Your main category</p>
+            <p className={styles.wizardLabel}>Your main category</p>
             <div className={formFieldStyles.chips}>
-              {NICHES.map((n) => (
-                <Chip key={n} active={form.category === n} onClick={() => set('category', n)}>
-                  {n}
+              {categories.map((c) => (
+                <Chip key={c.id} active={form.categoryId === c.id} onClick={() => set('categoryId', c.id)}>
+                  {c.label}
                 </Chip>
               ))}
             </div>
           </div>
           <div>
-            <p style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash)', marginBottom: '0.6rem' }}>Content styles you shoot</p>
+            <p className={styles.wizardLabel}>Content styles you shoot</p>
             <div className={formFieldStyles.chips}>
-              {CONTENT_STYLES.map((s) => (
-                <Chip key={s} active={form.contentStyles.includes(s)} onClick={() => toggleMulti('contentStyles', s)}>
-                  {s}
+              {contentStyles.map((s) => (
+                <Chip key={s.id} active={form.contentStyles.includes(s.slug)} onClick={() => toggleMulti('contentStyles', s.slug)}>
+                  {s.label}
                 </Chip>
               ))}
             </div>
@@ -150,11 +155,11 @@ export default function RegisterWizard() {
 
       {step === 2 && (
         <div>
-          <p style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash)', marginBottom: '0.6rem' }}>Languages you shoot in</p>
+          <p className={styles.wizardLabel}>Languages you shoot in</p>
           <div className={formFieldStyles.chips}>
             {LANGUAGES.map((l) => (
-              <Chip key={l} active={form.languages.includes(l)} onClick={() => toggleMulti('languages', l)}>
-                {l}
+              <Chip key={l.value} active={form.languages.includes(l.value)} onClick={() => toggleMulti('languages', l.value)}>
+                {l.label}
               </Chip>
             ))}
           </div>
@@ -162,33 +167,33 @@ export default function RegisterWizard() {
       )}
 
       {step === 3 && (
-        <div style={{ display: 'grid', gap: '1.6rem' }}>
+        <div className={styles.wizardGroups}>
           <div>
-            <p style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash)', marginBottom: '0.6rem' }}>What do you shoot on</p>
+            <p className={styles.wizardLabel}>What do you shoot on</p>
             <div className={formFieldStyles.chips}>
-              {SHOOT_SETUPS.map((s) => (
-                <Chip key={s} active={form.shootSetup === s} onClick={() => set('shootSetup', s)}>
-                  {s}
+              {SHOOT_SETUP_OPTIONS.map((o) => (
+                <Chip key={o.value} active={form.shootSetup === o.value} onClick={() => set('shootSetup', o.value)}>
+                  {o.label}
                 </Chip>
               ))}
             </div>
           </div>
           <div>
-            <p style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash)', marginBottom: '0.6rem' }}>Usual turnaround</p>
+            <p className={styles.wizardLabel}>Usual turnaround</p>
             <div className={formFieldStyles.chips}>
-              {TURNAROUND_BANDS.map((t) => (
-                <Chip key={t} active={form.turnaround === t} onClick={() => set('turnaround', t)}>
-                  {t}
+              {TURNAROUND_OPTIONS.map((o) => (
+                <Chip key={o.value} active={form.turnaround === o.value} onClick={() => set('turnaround', o.value)}>
+                  {o.label}
                 </Chip>
               ))}
             </div>
           </div>
           <div>
-            <p style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash)', marginBottom: '0.6rem' }}>Rate per video</p>
+            <p className={styles.wizardLabel}>Rate per video</p>
             <div className={formFieldStyles.chips}>
-              {RATE_BANDS.map((b) => (
-                <Chip key={b} active={form.rateBand === b} onClick={() => set('rateBand', b)}>
-                  {b}
+              {RATE_BAND_OPTIONS.map((o) => (
+                <Chip key={o.value} active={form.rateBand === o.value} onClick={() => set('rateBand', o.value)}>
+                  {o.label}
                 </Chip>
               ))}
             </div>
@@ -197,25 +202,27 @@ export default function RegisterWizard() {
       )}
 
       {step === 4 && (
-        <div style={{ display: 'grid', gap: '1.4rem' }}>
+        <div className={styles.wizardGroups}>
           <FormField
-            label="Instagram / YouTube / TikTok handles + up to 3 sample links"
-            placeholder="@yourhandle, youtube.com/@you, link-to-a-video"
-            value={handlesText}
-            onChange={(e) => setHandlesText(e.target.value)}
+            label="Instagram handle"
+            placeholder="@yourhandle"
+            value={instagram?.handle ?? ''}
+            onChange={(e) => set('socialProfiles', [{ platform: 'instagram', handle: e.target.value }])}
           />
-          <p style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash-dim)' }}>Separate with commas. No production house required.</p>
 
-          <div style={{ borderTop: '1px solid var(--bcm-line)', paddingTop: '1.2rem', display: 'grid', gap: '0.5rem', fontSize: 'var(--step--1)', color: 'var(--bcm-ash)' }}>
-            <p style={{ color: 'var(--bcm-crema)', fontFamily: 'var(--font-display)', fontSize: 'var(--step-1)', fontWeight: 600 }}>
-              Interval ho gaya. Last look before submit.
+          <div className={styles.reviewSummary}>
+            <p className={styles.reviewTitle}>Interval ho gaya. Last look before submit.</p>
+            <p>
+              <strong>{form.fullName}</strong> · {form.city}
             </p>
-            <p><strong style={{ color: 'var(--bcm-crema)' }}>{form.name}</strong> · {form.city}</p>
-            <p>{form.phone} · {form.email}</p>
-            <p>{form.category} · {form.contentStyles.join(', ')}</p>
+            <p>
+              {form.phone} · {form.email}
+            </p>
+            <p>
+              {categoryLabel} · {form.contentStyles.join(', ')}
+            </p>
             <p>{form.languages.join(', ')}</p>
-            <p>{form.shootSetup} · {form.turnaround} · {form.rateBand}</p>
-            <p style={{ color: 'var(--bcm-ash-dim)' }}>
+            <p className={styles.reviewNote}>
               A real person reviews this, usually within 48 hours. Track your status from the dashboard.
             </p>
           </div>

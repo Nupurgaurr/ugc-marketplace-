@@ -1,34 +1,25 @@
 .card {
-  border: 1px dashed var(--bcm-accent-dim);
-  border-radius: var(--radius-lg);
-  padding: 1.1rem 1.3rem;
+  border: 1px solid var(--bcm-line);
+  border-left: 2px solid var(--bcm-accent-dim);
+  border-radius: var(--radius);
+  padding: var(--space-4) var(--space-5);
   background: var(--bcm-accent-wash);
   display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  margin-bottom: 1.8rem;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 
-.quoteMark {
-  font-family: var(--font-display);
-  font-size: 2.2rem;
-  line-height: 1;
+.icon {
   color: var(--bcm-accent);
   flex-shrink: 0;
-}
-
-.image {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius);
-  object-fit: cover;
-  flex-shrink: 0;
+  margin-top: 0.15em;
 }
 
 .text {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: var(--space-1);
 }
 
 .line {

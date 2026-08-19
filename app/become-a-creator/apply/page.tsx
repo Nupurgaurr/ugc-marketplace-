@@ -1,11 +1,14 @@
 import Link from 'next/link';
 import AuthPageShell from '@/components/shared/AuthPageShell';
 import RegisterWizard from '@/components/creator/RegisterWizard';
+import { getCategories, getContentStyles } from '@/lib/data/options';
 import { ROUTES } from '@/lib/routes';
 
 export const metadata = { title: 'Lights, camera, apply. — blackcoffee. UGC' };
 
-export default function CreatorApplyPage() {
+export default async function CreatorApplyPage() {
+  const [categories, contentStyles] = await Promise.all([getCategories(), getContentStyles()]);
+
   return (
     <AuthPageShell
       title="Lights, camera, apply."
@@ -15,7 +18,7 @@ export default function CreatorApplyPage() {
         </>
       }
     >
-      <RegisterWizard />
+      <RegisterWizard categories={categories} contentStyles={contentStyles} />
     </AuthPageShell>
   );
 }

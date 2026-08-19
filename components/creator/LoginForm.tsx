@@ -1,36 +1,37 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useFormState, useFormStatus } from 'react-dom';
+import { Mail } from 'lucide-react';
 import FormField from '@/components/shared/FormField';
 import Button from '@/components/shared/Button';
-import { loginCreator } from '@/lib/auth/mockAuth';
-import { ROUTES } from '@/lib/routes';
+import { sendMagicLink, type ActionResult } from '@/app/actions/auth';
+import styles from './creator.module.css';
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" variant="primary" block arrow disabled={pending}>
+      {pending ? 'Bhej rahe hain' : 'Send me a link'}
+    </Button>
+  );
+}
 
 export default function LoginForm() {
-  const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = loginCreator(email);
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-    router.push(ROUTES.creator.dashboard);
-  };
+  const [state, formAction] = useFormState<ActionResult | null, FormData>(sendMagicLink, null);
 
   return (
-    <form onSubmit={submit} style={{ display: 'grid', gap: '1.2rem', maxWidth: '420px', marginInline: 'auto' }}>
-      <FormField label="Email" type="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-      {error && <p style={{ color: 'var(--status-danger)', fontSize: 'var(--step--1)' }}>{error}</p>}
-      <Button type="submit" variant="primary" block arrow>
-        Log in
-      </Button>
-      <p style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash-dim)', textAlign: 'center' }}>
-        Prototype — try aisha.rahman@example.com (a seeded mock creator), or apply as a new creator.
+    <form action={formAction} className={styles.authForm}>
+      <FormField label="Email" name="email" type="email" placeholder="you@email.com" required />
+
+      {state && (
+        <p className={state.ok ? styles.authNoteOk : styles.authNoteError}>{state.message}</p>
+      )}
+
+      <SubmitButton />
+
+      <p className={styles.authHint}>
+        <Mail size={14} aria-hidden="true" />
+        No password. We email you a link that signs you in.
       </p>
     </form>
   );

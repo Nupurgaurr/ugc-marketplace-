@@ -37,6 +37,19 @@
   --bcm-line: rgba(237, 230, 220, 0.11);
   --bcm-line-strong: rgba(237, 230, 220, 0.2);
 
+  /* ---- Spacing scale ---------------------------------------------------
+     Every margin and padding in the product comes from this ladder. If a
+     value you need is not here, the answer is the nearest step, not a new
+     hardcoded number. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
   /* ---- Layout ----------------------------------------------------------*/
   --gutter: clamp(1.15rem, 4vw, 3.5rem);
   --measure: 1260px;

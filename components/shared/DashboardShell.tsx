@@ -25,7 +25,8 @@ export default function DashboardShell({
   navItems: NavItem[];
   sessionName: string;
   sessionEmail: string;
-  onLogout: () => void;
+  /** A server action. Rendered inside a form so the shell stays a Server Component. */
+  onLogout: () => Promise<void>;
   pageTitle: string;
   pageSub?: string;
   children: ReactNode;
@@ -57,9 +58,11 @@ export default function DashboardShell({
         <div className={styles.footer}>
           <p className={styles.session}>{sessionName}</p>
           <p className={styles.sessionEmail}>{sessionEmail}</p>
-          <button type="button" className={styles.link} onClick={onLogout}>
-            Log out
-          </button>
+          <form action={onLogout}>
+            <button type="submit" className={styles.link}>
+              Log out
+            </button>
+          </form>
         </div>
       </aside>
 

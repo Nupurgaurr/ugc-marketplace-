@@ -1,16 +1,30 @@
-'use client';
-
-import RequireAuth from '@/components/shared/RequireAuth';
+import { redirect } from 'next/navigation';
 import AdminShell from '@/components/admin/AdminShell';
 import CreatorQueue from '@/components/admin/CreatorQueue';
+import { createClient } from '@/lib/supabase/server';
+import { getCreatorQueue, isCurrentUserAdmin } from '@/lib/data/admin';
 import { ROUTES } from '@/lib/routes';
 
-export default function AdminCreatorsPage() {
+export const metadata = { title: 'Creator approvals — blackcoffee. UGC' };
+
+export default async function AdminCreatorsPage() {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect(ROUTES.admin.login);
+  if (!(await isCurrentUserAdmin())) redirect(ROUTES.home);
+
+  const rows = await getCreatorQueue();
+
   return (
-    <RequireAuth role="admin" loginHref={ROUTES.admin.login}>
-      <AdminShell pageTitle="Creator approvals" pageSub="Approve, reject, and manage every creator on the platform.">
-        <CreatorQueue />
-      </AdminShell>
-    </RequireAuth>
+    <AdminShell
+      pageTitle="Creator approvals"
+      pageSub="Approve and reject every creator on the roster."
+      sessionEmail={user.email ?? ''}
+    >
+      <CreatorQueue rows={rows} />
+    </AdminShell>
   );
 }

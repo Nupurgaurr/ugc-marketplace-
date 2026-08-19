@@ -1,57 +1,60 @@
 'use client';
 
-import { useState } from 'react';
-import type { Creator } from '@/lib/types';
+import { useState, useTransition } from 'react';
 import DataTable, { type Column } from '@/components/shared/DataTable';
 import StatusPill from '@/components/shared/StatusPill';
 import Button from '@/components/shared/Button';
-import { creators, setCreatorStatus } from '@/lib/data/creators';
+import { reviewCreator } from '@/app/actions/review';
+import { languageLabel } from '@/lib/languages';
 import { formatDate } from '@/lib/utils';
+import type { CreatorRow } from '@/lib/data/admin';
 import styles from './admin.module.css';
 
-export default function CreatorQueue() {
-  const [, rerender] = useState(0);
+export default function CreatorQueue({ rows }: { rows: CreatorRow[] }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [tab, setTab] = useState<'pending' | 'all'>('pending');
+  const [error, setError] = useState('');
+  const [isPending, startTransition] = useTransition();
 
-  const bump = () => rerender((n) => n + 1);
+  const visible =
+    tab === 'pending' ? rows.filter((c) => c.status === 'applied' || c.status === 'in_review') : rows;
 
-  const rows = tab === 'pending' ? creators.filter((c) => c.status === 'applied' || c.status === 'in_review') : creators;
+  const review = (id: string, status: 'in_review' | 'approved' | 'rejected') => {
+    setError('');
+    startTransition(async () => {
+      const result = await reviewCreator(id, status);
+      if (!result.ok) setError(result.message);
+    });
+  };
 
-  const columns: Column<Creator>[] = [
-    { header: 'Creator', cell: (c) => <span className={styles.name}>{c.name}</span> },
-    { header: 'Category', cell: (c) => c.category || '—' },
-    { header: 'Submitted', cell: (c) => formatDate(c.submittedAt) },
-    { header: 'Sample links', cell: (c) => `${c.handles.length} link${c.handles.length === 1 ? '' : 's'}` },
+  const columns: Column<CreatorRow>[] = [
+    { header: 'Creator', cell: (c) => <span className={styles.name}>{c.full_name}</span> },
+    { header: 'Category', cell: (c) => c.category_label ?? '—' },
+    { header: 'Submitted', cell: (c) => formatDate(c.created_at) },
+    {
+      header: 'Sample links',
+      cell: (c) => `${c.sample_links.length} link${c.sample_links.length === 1 ? '' : 's'}`,
+    },
     { header: 'Status', cell: (c) => <StatusPill status={c.status} /> },
     {
       header: 'Action',
       cell: (c) =>
         c.status === 'applied' || c.status === 'in_review' ? (
           <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
-            <Button
-              variant="secondary"
-              size="small"
-              onClick={() => {
-                setCreatorStatus(c.id, 'approved');
-                bump();
-              }}
-            >
+            {c.status === 'applied' && (
+              <Button variant="ghost" size="small" disabled={isPending} onClick={() => review(c.id, 'in_review')}>
+                Start review
+              </Button>
+            )}
+            <Button variant="secondary" size="small" disabled={isPending} onClick={() => review(c.id, 'approved')}>
               Approve
             </Button>
-            <Button
-              variant="danger"
-              size="small"
-              onClick={() => {
-                setCreatorStatus(c.id, 'rejected');
-                bump();
-              }}
-            >
+            <Button variant="danger" size="small" disabled={isPending} onClick={() => review(c.id, 'rejected')}>
               Reject
             </Button>
           </div>
         ) : (
-          <span style={{ color: 'var(--bcm-ash-dim)', fontSize: 'var(--step--1)' }}>—</span>
+          <span className={styles.muted}>—</span>
         ),
     },
   ];
@@ -67,9 +70,11 @@ export default function CreatorQueue() {
         </Button>
       </div>
 
+      {error && <p className={styles.queueError}>{error}</p>}
+
       <DataTable
         columns={columns}
-        rows={rows}
+        rows={visible}
         expandedId={expandedId}
         onToggleExpand={(id) => setExpandedId(expandedId === id ? null : id)}
         emptyLabel="Nothing here."
@@ -77,19 +82,25 @@ export default function CreatorQueue() {
           <div className={styles.expandBody}>
             <div>
               <p className={styles.detailLabel}>Contact</p>
-              <p className={styles.detailValue}>{c.email} · {c.phone} · {c.city}</p>
+              <p className={styles.detailValue}>
+                {c.email} · {c.phone} · {c.city}
+              </p>
             </div>
             <div>
               <p className={styles.detailLabel}>Languages</p>
-              <p className={styles.detailValue}>{c.languages.join(', ') || '—'}</p>
+              <p className={styles.detailValue}>{c.languages.map(languageLabel).join(', ') || '—'}</p>
             </div>
             <div>
               <p className={styles.detailLabel}>Content styles</p>
-              <p className={styles.detailValue}>{c.contentStyles.join(', ') || '—'}</p>
+              <p className={styles.detailValue}>{c.content_styles.join(', ') || '—'}</p>
             </div>
             <div>
-              <p className={styles.detailLabel}>Handles / links</p>
-              <p className={styles.detailValue}>{c.handles.join(', ') || '—'}</p>
+              <p className={styles.detailLabel}>Social profiles</p>
+              <p className={styles.detailValue}>{c.social_handles.join(' · ') || '—'}</p>
+            </div>
+            <div>
+              <p className={styles.detailLabel}>Sample links</p>
+              <p className={styles.detailValue}>{c.sample_links.join(' · ') || '—'}</p>
             </div>
           </div>
         )}
