@@ -49,16 +49,35 @@ Resend.
 
 ## 4. Add yourself as an admin
 
-Admin is membership in the `admins` table, not a password. Sign in once at
-`/admin/login` to mint the auth user, find its id under **Authentication →
-Users**, then:
+Admin is membership in the `admins` table, not a password.
+
+**The app will not create the auth user for you.** `sendMagicLink` passes
+`shouldCreateUser: false`, so visiting `/admin/login` before the user exists
+just answers "No account for that address." Create it first:
+
+1. **Authentication -> Users -> Add user**, with *Auto Confirm User* ticked.
+2. Copy the new user's UUID.
+3. Run, with that UUID:
 
 ```sql
 insert into admins (user_id, email)
 values ('<the-uuid>', 'you@blackcoffee.media');
 ```
 
-Nothing in the app writes to `admins`. That is deliberate.
+Nothing in the app writes to `admins`. That is deliberate: admin is granted
+out of band, never through a route someone can reach.
+
+To check it took, sign in and call the function the policies use:
+
+```sql
+select public.is_admin();
+```
+
+### Getting in before SMTP is configured
+
+Magic links need step 3 done. Until then, use **Authentication -> Users ->
+the row's menu -> Send magic link**, or generate one and paste it into the
+browser. The link is single use and expires in an hour.
 
 ## 5. Regenerate types after any schema change
 
