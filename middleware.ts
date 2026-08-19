@@ -34,7 +34,8 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  if (!user && (pathname.startsWith('/creator/dashboard') || pathname.startsWith('/creator/profile'))) {
+  const creatorOnly = [ROUTES.creator.dashboard, ROUTES.creator.profile, ROUTES.creator.payouts];
+  if (!user && creatorOnly.some((route) => pathname.startsWith(route))) {
     return NextResponse.redirect(new URL(ROUTES.creator.login, request.url));
   }
 

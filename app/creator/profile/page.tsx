@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import CreatorShell from '@/components/creator/CreatorShell';
 import ProfileEditor from '@/components/creator/ProfileEditor';
 import { getCurrentCreator, getSampleLinks, getSocialProfiles } from '@/lib/data/creator';
+import { getCategories, getContentStyles } from '@/lib/data/options';
 import { ROUTES } from '@/lib/routes';
 import type { CreatorProfileInput } from '@/lib/schemas/creator';
 
@@ -12,9 +13,11 @@ export default async function CreatorProfilePage() {
   if (!creator) redirect(ROUTES.creator.login);
   if (creator.status !== 'approved') redirect(ROUTES.creator.dashboard);
 
-  const [socialProfiles, sampleLinks] = await Promise.all([
+  const [socialProfiles, sampleLinks, categories, contentStyles] = await Promise.all([
     getSocialProfiles(creator.id),
     getSampleLinks(creator.id),
+    getCategories(),
+    getContentStyles(),
   ]);
 
   const profile: CreatorProfileInput = {
@@ -38,7 +41,7 @@ export default async function CreatorProfilePage() {
       sessionName={creator.full_name}
       sessionEmail={creator.email}
     >
-      <ProfileEditor profile={profile} />
+      <ProfileEditor profile={profile} categories={categories} contentStyles={contentStyles} />
     </CreatorShell>
   );
 }
