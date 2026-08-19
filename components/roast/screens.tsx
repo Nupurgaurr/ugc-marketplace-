@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import MemeSlot from '@/components/shared/MemeSlot';
 import ScrambleText from '@/components/motion/ScrambleText';
@@ -8,6 +8,7 @@ import MaskReveal from '@/components/motion/MaskReveal';
 import MagneticButton from '@/components/motion/MagneticButton';
 import DodgeButton from '@/components/motion/DodgeButton';
 import { ROUTES } from '@/lib/routes';
+import { cx } from '@/lib/utils';
 import styles from './RoastStage.module.css';
 
 export interface ScreenProps {
@@ -21,7 +22,7 @@ export function ScreenColdOpen({ active }: ScreenProps) {
       <p className={styles.big}>
         <ScrambleText text="Ek minute." play={active} />
       </p>
-      <p className={styles.sub} style={{ opacity: active ? 1 : 0, transition: 'opacity 0.6s ease 0.6s' }}>
+      <p className={cx(styles.sub, styles.delayed, active && styles.delayedOn)} style={{ '--delay': '0.6s' } as CSSProperties}>
         Form neeche hai. Pehle baat kar lete hain.
       </p>
     </div>
@@ -65,7 +66,7 @@ export function ScreenLine({ active }: ScreenProps) {
       <MaskReveal className={styles.big}>
         <span>&ldquo;Collab karte hain.&rdquo;</span>
       </MaskReveal>
-      <p className={styles.sub} style={{ opacity: active ? 1 : 0, transition: 'opacity 0.6s ease 0.5s' }}>
+      <p className={cx(styles.sub, styles.delayed, active && styles.delayedOn)} style={{ '--delay': '0.5s' } as CSSProperties}>
         Translation: free mein karwa lenge.
       </p>
     </div>
@@ -100,7 +101,7 @@ export function ScreenQuestion({ active }: ScreenProps) {
 
   return (
     <div className={styles.screenInner}>
-      <p className={styles.big} style={{ fontSize: 'clamp(1.8rem, 5vw, 3.4rem)' }}>
+      <p className={cx(styles.big, styles.bigMd)}>
         How many brands replied last month?
       </p>
       <div className={styles.quizOptions}>
@@ -126,7 +127,7 @@ export function ScreenTurn() {
       <MaskReveal className={styles.big} direction="up">
         <span>Here&rsquo;s what nobody tells you.</span>
       </MaskReveal>
-      <p className={styles.sub} style={{ marginTop: '1.6rem' }}>
+      <p className={styles.sub}>
         Brands aren&rsquo;t short of creators. They&rsquo;re short of creators who deliver on time.
       </p>
     </div>
@@ -148,19 +149,15 @@ const WHAT_LINES = ['Paid briefs from real brands.', 'We chase the invoice, not 
 export function ScreenWhatWeAre({ active }: ScreenProps) {
   return (
     <div className={styles.screenInner}>
-      <p className={styles.big} style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)' }}>
+      <p className={cx(styles.big, styles.bigSm)}>
         So we made a list.
       </p>
       <div className={styles.stack}>
         {WHAT_LINES.map((line, i) => (
           <p
             key={line}
-            className={styles.stackLine}
-            style={{
-              opacity: active ? 1 : 0,
-              transform: active ? 'none' : 'translateY(10px)',
-              transition: `opacity 0.5s ease ${0.3 + i * 0.35}s, transform 0.5s ease ${0.3 + i * 0.35}s`,
-            }}
+            className={cx(styles.stackLine, styles.delayed, active && styles.delayedOn)}
+            style={{ '--delay': `${0.3 + i * 0.2}s` } as CSSProperties}
           >
             {line}
           </p>
@@ -176,7 +173,7 @@ export function ScreenBar() {
       <MaskReveal className={styles.big} direction="up">
         <span>We reject most people who apply.</span>
       </MaskReveal>
-      <p className={styles.sub} style={{ marginTop: '1.4rem' }}>
+      <p className={styles.sub}>
         A list everyone&rsquo;s on is worth nothing to the brands paying for it.
       </p>
     </div>
@@ -198,7 +195,7 @@ export function ScreenAsk({ active }: ScreenProps) {
 
   return (
     <div className={styles.screenInner}>
-      <p className={styles.big} style={{ fontSize: 'clamp(2rem, 6vw, 3.6rem)' }}>
+      <p className={cx(styles.big, styles.bigLg)}>
         Toh? Ready ho?
       </p>
 

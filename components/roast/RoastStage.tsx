@@ -3,9 +3,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { prefersReducedMotion } from '@/lib/animation/gsapConfig';
+import {
+  prefersReducedMotion,
+  REVEAL_ROOT_MARGIN,
+  REVEAL_THRESHOLD,
+} from '@/lib/animation/gsapConfig';
 import { ROUTES } from '@/lib/routes';
 import Spotlight from '@/components/motion/Spotlight';
+import SmoothScroll from '@/components/motion/SmoothScroll';
 import {
   ScreenColdOpen,
   ScreenFirstCut,
@@ -48,6 +53,7 @@ export default function RoastStage() {
   const router = useRouter();
   const screenRefs = useRef<Array<HTMLElement | null>>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [revealed, setRevealed] = useState<Set<number>>(() => new Set([0]));
   const [progress, setProgress] = useState(0);
   const [reduced, setReduced] = useState(false);
   const [ready, setReady] = useState(false);
@@ -60,16 +66,21 @@ export default function RoastStage() {
   useEffect(() => {
     if (!ready) return;
 
+    // A screen reveals once and stays revealed. Tying visibility to a single
+    // activeIndex meant every screen faded back out as the next one arrived,
+    // which is what made the page feel like it was assembling and
+    // disassembling itself as you scrolled.
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const idx = screenRefs.current.findIndex((el) => el === entry.target);
-            if (idx >= 0) setActiveIndex(idx);
-          }
+          if (!entry.isIntersecting) return;
+          const idx = screenRefs.current.findIndex((el) => el === entry.target);
+          if (idx < 0) return;
+          setActiveIndex(idx);
+          setRevealed((prev) => (prev.has(idx) ? prev : new Set(prev).add(idx)));
         });
       },
-      { threshold: 0.5 }
+      { threshold: REVEAL_THRESHOLD, rootMargin: REVEAL_ROOT_MARGIN }
     );
 
     screenRefs.current.forEach((el) => el && observer.observe(el));
@@ -108,16 +119,18 @@ export default function RoastStage() {
     return () => window.removeEventListener('keydown', onKey);
   }, [activeIndex, router]);
 
-  if (!ready) return <div style={{ minHeight: '100vh', background: 'var(--bcm-black)' }} />;
+  if (!ready) return <div className={styles.bootstrap} />;
 
   return (
     <div className={styles.wrapper}>
+      <SmoothScroll />
+
       <Link href={ROUTES.becomeCreatorApply} className={styles.skip}>
         Skip to application →
       </Link>
 
       {SCREENS.map((Screen, i) => {
-        const isActive = reduced || i === activeIndex;
+        const isRevealed = reduced || revealed.has(i);
         return (
           <section
             key={i}
@@ -127,8 +140,8 @@ export default function RoastStage() {
             }}
           >
             {i === 3 || i === 6 ? <Spotlight bright /> : <Spotlight />}
-            <div className={cx(styles.screenContent, isActive && styles.screenContentActive)}>
-              <Screen active={isActive} reduced={reduced} />
+            <div className={cx(styles.screenContent, isRevealed && styles.screenContentActive)}>
+              <Screen active={reduced || i === activeIndex} reduced={reduced} />
             </div>
           </section>
         );

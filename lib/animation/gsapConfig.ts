@@ -15,3 +15,18 @@ export function revealDistance(): number {
   const raw = getComputedStyle(document.documentElement).getPropertyValue('--reveal-y');
   return Number.parseFloat(raw) || 20;
 }
+
+/**
+ * Every reveal in the product fires off these. One threshold and one root
+ * margin means two elements at the same height on screen reveal together
+ * instead of drifting apart.
+ *
+ * The negative bottom margin is what makes "meaningfully in view" true: the
+ * observer ignores the bottom 12% of the viewport, so nothing fires while it
+ * is still a sliver past the fold.
+ */
+export const REVEAL_THRESHOLD = 0.25;
+export const REVEAL_ROOT_MARGIN = '0px 0px -12% 0px';
+
+/** Matches --duration-slow. */
+export const REVEAL_DURATION = 0.6;

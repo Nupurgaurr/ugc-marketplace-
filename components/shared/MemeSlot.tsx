@@ -20,7 +20,7 @@ export default function MemeSlot({
   className?: string;
 }) {
   const entry = MEME_MANIFEST[id];
-  const ref = useReveal<HTMLDivElement>({ y: 16, duration: 0.6 });
+  const ref = useReveal<HTMLDivElement>();
 
   if (entry?.src) {
     return (
