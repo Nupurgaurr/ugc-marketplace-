@@ -14,8 +14,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 ```
 
+`NEXT_PUBLIC_SUPABASE_URL` is the **base** project URL, `https://yourref.supabase.co`.
+Supabase's dashboard also shows a `/rest/v1/` endpoint; pasting that one here makes
+every request 404, because supabase-js appends its own paths.
+
 `.env.local` is gitignored. The service role key bypasses RLS, so it never gets
-a `NEXT_PUBLIC_` prefix and never reaches the browser.
+a `NEXT_PUBLIC_` prefix and never reaches the browser. If it is ever pasted
+somewhere it should not be, rotate it in Project Settings -> API rather than
+hoping it was not read.
 
 ## 2. Run the migrations
 
