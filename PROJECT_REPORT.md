@@ -1,6 +1,6 @@
 # Black Coffee Media UGC Network, Project Report
 
-Last updated after Task 1 (purge). This document describes what exists today. Anything not yet built sits under Section 4, clearly marked. No aspirational language above that line.
+Last updated 2026-08-19, after the Phase 1 rebuild (Tasks 1 to 7). This document describes what exists today. Anything not yet built sits under Section 4, clearly marked. No aspirational language above that line.
 
 ## 1. Summary
 
@@ -40,34 +40,46 @@ Brand accounts, campaign and casting workflow, deliverable tracking, payout runs
 4. **BCM moves the application** to `in_review`, then `approved` or `rejected`. Approved creators get the full dashboard. Rejected creators get a plain, respectful message.
 5. **Approved creators add payout details** so BCM can pay them directly for work it brings them.
 
-A separate onboarding path is needed for the roughly 100 creators BCM already manages. They must not be asked to fill in the application wizard. This is not built yet, see Section 4.
+A separate onboarding path is needed for the roughly 100 creators BCM already manages. They must not be asked to fill in the application. This is not built yet, see Section 4.
 
 ## 4. Current State
 
 ### Done
 
-**Task 1, purge.** The brand side, briefs, pitches, requests, discover, admin reports and all mock data are deleted. Nine routes remain. Docs updated to match.
+The Phase 1 rebuild is complete. Every task in the brief has shipped, each on its own commit on `feat/phase-1-rebuild`.
 
-### Still running on temporary code
-
-The creator and admin portals run on an in memory store (`lib/data/creators.ts`) and a localStorage session (`lib/auth/mockAuth.ts`). Both are deleted in Task 2 when Supabase replaces them. No demo records are seeded: a creator only exists once someone submits the application form, and that record disappears on reload.
-
-### Not built yet
-
-| Task | Scope |
+| Task | What landed |
 |---|---|
-| 2 | Supabase backend, auth, RLS, real persistence |
-| 3 | Home entrance transition and coming soon page, hamburger header |
-| 4 | Fix `/become-a-creator` spacing and reveal sync, add Lenis |
-| 5 | Full rebuild of the application form |
-| 6 | Creator portal cleanup, payout details tab |
-| 7 | Docs pass |
+| 1 | Purge. Brand side, briefs, pitches, requests, discover, admin reports and all mock data deleted, roughly 5,500 lines |
+| 2 | Supabase backend. Schema, RLS on every table, magic link auth, Zod schemas, Server Components, middleware |
+| 3 | Entrance transition and coming soon home. Permanent hamburger header. Fonts on `next/font` |
+| 4 | `/become-a-creator` spacing on a scale, reveals standardised, Lenis on the GSAP ticker |
+| 5 | Application form rebuilt. Tile selectors, structured social profiles, native-script languages, two column layout |
+| 6 | Creator portal. Full profile editor, and the payout details tab |
+| 7 | Docs. This file, `SITEMAP.md`, `PAGE_CONTENT_MAP.md`, `DESIGN_GUIDE.md`, and `DECISIONS.md` |
 
-Also not built and not yet scheduled: bulk import and claim flow for BCM's existing roster, and portfolio video upload (see Section 8).
+Typecheck and production build pass on every one of those commits.
+
+### What is needed before this runs
+
+The code is complete and the migrations are written, but **the Supabase project does not exist yet**. Four steps, all in `supabase/README.md`:
+
+1. Create the project, and fill `.env.local` from `.env.example`
+2. Run `migrations/0001_init.sql`, `0002_seed_option_lists.sql`, `0003_social_follower_count.sql` in order
+3. Configure Resend as the SMTP provider, and add `/auth/callback` to the redirect allow list
+4. Insert a row into `admins` for whoever is reviewing applications
+
+Until then the app builds and typechecks but cannot read or write anything.
+
+### Not built
+
+- Onboarding for BCM's existing roster: bulk import, and a claim flow so those creators are not asked to fill in the application.
+- A UI for `admin_notes`. The table and its admin-only RLS exist; nothing writes to it.
+- Portfolio video upload. See Section 8.
 
 ## 5. Data Model
 
-Defined in Task 2. All tables carry Row Level Security. A creator can read and write only their own rows.
+Defined in `supabase/migrations/0001_init.sql`. All tables carry Row Level Security, and no table has a permissive default. A creator can read and write only their own rows, proven either by `auth_user_id` or by a join back to it.
 
 | Table | Holds |
 |---|---|
@@ -76,11 +88,14 @@ Defined in Task 2. All tables carry Row Level Security. A creator can read and w
 | `creator_sample_links` | Up to three, optional |
 | `creator_payout_details` | Bank or UPI, PAN, verification flag |
 | `categories`, `content_styles` | Admin editable later, seeded now. Read from the database, never hardcoded in components. |
-| `admin_notes` | Private to BCM, never visible to the creator |
+| `admin_notes` | Private to BCM. No creator-facing policy exists, so a creator cannot read these rows under any query |
+| `admins` | Membership here is what makes an auth user BCM. Rows are added by hand; nothing in the app writes to it |
 
 Application status: `applied`, `in_review`, `approved`, `rejected`.
 
-`creator_payout_details` is the most sensitive table in the project. Strictest RLS, never exposed through a public route, never logged, account number masked to the last four digits in the UI after save.
+`creator_payout_details` is the most sensitive table in the project. The owning creator and the service role only. **Admins are deliberately absent from its policies**, a trigger blocks a creator marking their own details verified, and the account and PAN numbers are masked to their last four digits in `lib/data/creator.ts` before they ever leave the server. Nothing logs them.
+
+A trigger on `creators` also blocks a creator editing their own `status`, `reviewed_at` or `reviewed_by`, so only BCM moves an application through the pipeline.
 
 ## 6. Brand and Tone
 
@@ -130,15 +145,13 @@ Adding a dependency requires an entry in `DECISIONS.md` and agreement from both 
 
 ## 8. Open Decisions
 
-Things that need an answer, not things that need building.
+Things that need an answer, not things that need building. Decisions already made are recorded in [DECISIONS.md](./DECISIONS.md).
 
-- **Portfolio video.** Phase 1 collects Instagram links only, or creators upload real video files. Upload means a hosting and transcode provider (Cloudflare Stream or Bunny Stream) and a preview clip strategy for grid hover. This changes the backend, so it is decided before Task 5, not during it.
-- **Who approves creators** while the full admin panel does not exist. The minimal queue in this repo, or directly in the Supabase dashboard until Nupur ships hers. A creator can apply on day one, so this needs an answer at launch.
-- **Home page one liner**, exact wording.
-- **Entrance text**, exact wording and casing. Currently written as `welcome to blackcoffee.ugc`.
-- **Email capture on the coming soon page**, or genuinely nothing but one line.
-- **Existing roster onboarding.** How BCM's current creators get imported and invited to claim a profile, and who chases them for their details.
+- **Who approves creators** while the full admin panel does not exist. The minimal queue in this repo works and is wired to real data, so the only question is whether Nupur's panel replaces it before launch. A creator can apply on day one, so someone needs a row in `admins` either way.
+- **Existing roster onboarding.** How BCM's roughly 100 current creators get imported and invited to claim a profile, and who chases them for their details. Nothing is built for this.
 - **Payout model.** Rate bands set by BCM versus creators quoting freely, payment split on casting versus on delivery, and TDS and GST handling. Needs BCM's CA before it is finalised. Phase 2, but the fields are captured from day one.
+- **Verifying payout details.** The `verified` flag exists and only the service role can set it. Nothing in the product sets it yet, so BCM currently flips it in the Supabase dashboard. Decide whether that is good enough or whether it needs a surface.
+- **Portfolio video.** Phase 1 is links only, decided. If uploads are wanted later that means a hosting and transcode provider and a preview clip strategy, and it is its own piece of work rather than an addition to the form.
 
 ## 9. Ownership
 

@@ -21,10 +21,11 @@ a `NEXT_PUBLIC_` prefix and never reaches the browser.
 
 In the Supabase dashboard, open **SQL Editor** and run these in order:
 
-1. `migrations/0001_init.sql` — tables, constraints, triggers, RLS policies
-2. `migrations/0002_seed_option_lists.sql` — categories and content styles
+1. `migrations/0001_init.sql`, tables, constraints, triggers, RLS policies
+2. `migrations/0002_seed_option_lists.sql`, categories and content styles
+3. `migrations/0003_social_follower_count.sql`, follower count on a social profile
 
-Re-running `0002` is safe. `0001` is not: it creates types and tables.
+Re-running `0002` is safe. `0001` and `0003` are not: they create and alter tables.
 
 ## 3. Wire Resend as the SMTP provider
 
@@ -65,18 +66,18 @@ compile error rather than a runtime surprise.
 
 ## What the policies actually enforce
 
-- **creators** — a creator reads and writes only the row whose `auth_user_id`
+- **creators**: a creator reads and writes only the row whose `auth_user_id`
   matches their session. A trigger blocks them from touching `status`,
   `reviewed_at`, `reviewed_by` or `auth_user_id`; only an admin moves an
   application through the pipeline.
-- **creator_social_profiles**, **creator_sample_links** — same ownership rule,
+- **creator_social_profiles**, **creator_sample_links**: same ownership rule,
   proven through a join back to `creators`. Admins get read access for review.
-- **creator_payout_details** — the owning creator and the service role, nobody
+- **creator_payout_details**: the owning creator and the service role, nobody
   else. Admins are deliberately absent from these policies. A trigger stops a
   creator marking their own details verified. The account and PAN numbers are
   masked to their last four digits before they leave the server, in
   `lib/data/creator.ts`.
-- **admin_notes** — admins only. There is no creator-facing policy, so a
+- **admin_notes**: admins only. There is no creator-facing policy, so a
   creator cannot read these rows under any query.
-- **categories**, **content_styles** — world readable, because the application
+- **categories**, **content_styles**: world readable, because the application
   form is public. Writable by admins.

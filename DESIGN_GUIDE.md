@@ -1,23 +1,23 @@
 # Design Guide
 
-The single source of truth for color, type, spacing, motion, and shared components. Every value below is read straight from the code — `styles/tokens.css`, `styles/typography.css`, and `components/shared/*` — not a separate design file to keep in sync by hand. If this doc and the code ever disagree, the code has drifted or this doc has; fix whichever is wrong, don't just pick one.
+The single source of truth for color, type, spacing, motion, and shared components. Every value below is read straight from the code (`styles/tokens.css`, `styles/typography.css`, and `components/shared/*`), not a separate design file to keep in sync by hand. If this doc and the code ever disagree, the code has drifted or this doc has; fix whichever is wrong, don't just pick one.
 
-**The rule for every stakeholder touching this project**: no component hardcodes a hex value, a px spacing number, or a `font-family`. Everything routes through a token. If you're about to type a color or a font, stop and reach for the variable instead — see `styles/tokens.css`'s own header comment, which says exactly this.
+**The rule for every stakeholder touching this project**: no component hardcodes a hex value, a px spacing number, or a `font-family`. Everything routes through a token. If you are about to type a colour or a font, stop and reach for the variable instead. §7 has the full list of rules that cannot bend.
 
-Companion docs: [PROJECT_REPORT.md](./PROJECT_REPORT.md) (what's built and why, including brand tone), [PAGE_CONTENT_MAP.md](./PAGE_CONTENT_MAP.md) (copy + features per screen), [SITEMAP.md](./SITEMAP.md) (routes), [HANDOVER_GUIDE.md](./HANDOVER_GUIDE.md) (engineering structure).
+Companion docs: [PROJECT_REPORT.md](./PROJECT_REPORT.md) (what is built and why, including brand tone), [PAGE_CONTENT_MAP.md](./PAGE_CONTENT_MAP.md) (copy and features per screen), [SITEMAP.md](./SITEMAP.md) (routes), [DECISIONS.md](./DECISIONS.md) (why things are the way they are).
 
 ---
 
 ## 1. Color
 
-All color lives in `styles/tokens.css` as CSS custom properties on `:root`. Dark, warm-neutral canvas throughout — there is no light theme.
+All color lives in `styles/tokens.css` as CSS custom properties on `:root`. Dark, warm-neutral canvas throughout. There is no light theme.
 
 ### Canvas & surface
 
 | Token | Value | Use |
 |---|---|---|
 | `--bcm-black` | `#0b0908` | Page canvas (warm-shifted near-black) |
-| `--bcm-grounds` | `#121010` | Raised band — section backgrounds, sidebar, expanded table rows |
+| `--bcm-grounds` | `#121010` | Raised band, section backgrounds, sidebar, expanded table rows |
 | `--bcm-roast` | `#1a1615` | Card / input surface |
 | `--bcm-roast-hi` | `#241f1d` | Hover surface (table row hover, chip hover) |
 
@@ -26,7 +26,7 @@ All color lives in `styles/tokens.css` as CSS custom properties on `:root`. Dark
 | Token | Value | Use |
 |---|---|---|
 | `--bcm-crema` | `#ede6dc` | Primary text |
-| `--bcm-ash` | `#978d83` | Secondary text — ledes, labels, meta lines |
+| `--bcm-ash` | `#978d83` | Secondary text, ledes, labels, meta lines |
 | `--bcm-ash-dim` | `#6b625b` | Tertiary / disabled / placeholder |
 
 ### Accent
@@ -41,7 +41,7 @@ All color lives in `styles/tokens.css` as CSS custom properties on `:root`. Dark
 
 ### Status
 
-Four semantic tones, each with a solid color and a low-opacity wash for pill backgrounds. Used everywhere something has a lifecycle — creator/client/brief/request/pitch status.
+Four semantic tones, each with a solid color and a low-opacity wash for pill backgrounds. Used wherever something has a lifecycle: creator application status, and payout verification state.
 
 | Tone | Solid | Wash |
 |---|---|---|
@@ -50,34 +50,39 @@ Four semantic tones, each with a solid color and a low-opacity wash for pill bac
 | Danger | `--status-danger` `#c5645a` | `--status-danger-wash` `rgba(197, 100, 90, 0.14)` |
 | Info | `--status-info` `#6f9bd1` | `--status-info-wash` `rgba(111, 155, 209, 0.14)` |
 
-Never pick a status color by eye — go through `StatusPill` (§9.3), which already maps every status string in the product to the right tone.
+Never pick a status color by eye. Go through `StatusPill` (§5.3), which already maps every status string in the product to the right tone.
 
 ### Lines
 
 | Token | Value | Use |
 |---|---|---|
-| `--bcm-line` | `rgba(237, 230, 220, 0.11)` | Default hairline — card borders, table dividers, section rules |
-| `--bcm-line-strong` | `rgba(237, 230, 220, 0.2)` | Input borders, chip/tag borders — anything that needs to read as interactive |
+| `--bcm-line` | `rgba(237, 230, 220, 0.11)` | Default hairline, card borders, table dividers, section rules |
+| `--bcm-line-strong` | `rgba(237, 230, 220, 0.2)` | Input borders, chip/tag borders, anything that needs to read as interactive |
 
 ### Portal accents
 
-`--portal-client`, `--portal-creator`, `--portal-admin` exist in tokens.css as a hook for "subtle differentiation" between the three logged-in dashboards, but today all three are set to the same value as `--bcm-accent`. If a stakeholder wants the portals to feel distinct at a glance, this is the one place to make that change — see §10.
+`--portal-creator` and `--portal-admin` exist in tokens.css as a hook for differentiating the two logged-in dashboards. Both are set to `--bcm-accent` today. `--portal-client` is gone: brands do not hold accounts.
 
 ---
 
 ## 2. Typography
 
-Tokens live in `styles/typography.css`, imported once into `app/globals.css`. Two families, both loaded as CSS variables — no component ever names a font directly.
+Tokens live in `styles/typography.css`, imported once into `app/globals.css`. Every family is loaded through `next/font/google` in `app/layout.tsx` and reaches CSS as a variable, so no component ever names a font directly and there is no render-blocking stylesheet request.
 
 | Token | Stack | Use |
 |---|---|---|
-| `--font-display` | `'Bricolage Grotesque', 'Hanken Grotesk', system-ui, sans-serif` | Every heading (`h1`–`h4` are wired to it automatically), stat values, page titles |
-| `--font-body` | `'Hanken Grotesk', system-ui, -apple-system, sans-serif` | Body copy — the default on `<body>` |
-| `--font-mono` | `'JetBrains Mono', ui-monospace, 'SF Mono', monospace` | Labels, eyebrows, table headers, status pills, ratings — anything that should read as data/UI chrome rather than prose |
+| `--font-display` | Bricolage Grotesque | Every heading (`h1`-`h4` are wired to it automatically), stat values, page titles |
+| `--font-body` | Hanken Grotesk | Body copy, the default on `<body>` |
+| `--font-mono` | JetBrains Mono | Labels, eyebrows, table headers, status pills, anything that should read as data rather than prose |
+| `--font-indic` | Hanken Grotesk, then nine Noto Sans subsets | **Required** for any label written in a non-Latin script |
+
+Hanken Grotesk carries no Devanagari, Tamil, Telugu, Bengali, Gujarati, Malayalam, Gurmukhi, Kannada or Arabic glyphs. Without `--font-indic` those labels silently fall back to whatever the OS supplies and the language list renders in nine different typefaces. The Noto subsets are loaded alongside the Latin faces in `app/layout.tsx`.
+
+Urdu is right to left. Set `dir="rtl"` on the label element itself, never on its container, or the surrounding layout flips with it. `OptionTile` does this correctly; copy that pattern.
 
 ### Type scale
 
-A fluid `clamp()` scale — every step grows smoothly between a mobile floor and a desktop ceiling instead of jumping at breakpoints.
+A fluid `clamp()` scale: every step grows smoothly between a mobile floor and a desktop ceiling instead of jumping at breakpoints.
 
 | Token | Range | Typical use |
 |---|---|---|
@@ -85,17 +90,17 @@ A fluid `clamp()` scale — every step grows smoothly between a mobile floor and
 | `--step-0` | 0.95rem → 1.05rem | Body text (the `<body>` default) |
 | `--step-1` | 1.1rem → 1.35rem | Sub-headings, modal titles |
 | `--step-2` | 1.35rem → 1.9rem | Section titles, dashboard page titles, stat values |
-| `--step-3` | 1.9rem → 3rem | `.display` — standard section headline |
+| `--step-3` | 1.9rem → 3rem | `.display`, standard section headline |
 | `--step-4` | 2.4rem → 4.6rem | `.display--xl` |
-| `--step-5` | 3rem → 6rem | `.display--hero` — home hero only |
+| `--step-5` | 3rem → 6rem | `.display--hero`, home hero only |
 
 ### Utility classes (`styles/typography.css`)
 
-- `h1`–`h4` — display font, weight 600, line-height 1.03, tight tracking (-0.022em), `text-wrap: balance` by default. Don't override these per-component; if a heading needs to look different, it's a `.display*` class question, not a heading-level question.
-- `.display` / `.display--xl` / `.display--hero` — the three headline sizes above. An `<em>` inside any of them is *not* italic — it's the accent pattern for a two-clause headline, rendered in `--bcm-ash` (e.g. "We built the standard. *Everyone else is catching up.*"). Use `<em>` for that pattern specifically, never for actual emphasis.
-- `.lede` — intro paragraph under a headline: `--step-1`, `--bcm-ash`, capped at `46ch` so it never runs the full width of a wide section.
-- `.body-dim` — inline secondary text, `--bcm-ash`.
-- `.mono` — `--font-mono`, `--step--1`, tabular numerals. Reach for this on anything numeric that needs to not jitter (stat counters, timestamps).
+- `h1` to `h4`: display font, weight 600, line-height 1.03, tight tracking (-0.022em), `text-wrap: balance` by default. Don't override these per-component; if a heading needs to look different, it's a `.display*` class question, not a heading-level question.
+- `.display` / `.display--xl` / `.display--hero`: the three headline sizes above. An `<em>` inside any of them is *not* italic. It is the accent pattern for a two-clause headline, rendered in `--bcm-ash` (e.g. "We built the standard. *Everyone else is catching up.*"). Use `<em>` for that pattern specifically, never for actual emphasis.
+- `.lede`: intro paragraph under a headline: `--step-1`, `--bcm-ash`, capped at `46ch` so it never runs the full width of a wide section.
+- `.body-dim`: inline secondary text, `--bcm-ash`.
+- `.mono`: `--font-mono`, `--step--1`, tabular numerals. Reach for this on anything numeric that needs to not jitter (stat counters, timestamps).
 
 ---
 
@@ -103,40 +108,51 @@ A fluid `clamp()` scale — every step grows smoothly between a mobile floor and
 
 | Token | Value | Use |
 |---|---|---|
-| `--gutter` | `clamp(1.15rem, 4vw, 3.5rem)` | Horizontal page padding — every `.container` and most shell components use this, never a fixed px |
+| `--gutter` | `clamp(1.15rem, 4vw, 3.5rem)` | Horizontal page padding, every `.container` and most shell components use this, never a fixed px |
 | `--measure` | `1260px` | Max content width (`.container`) |
-| `--section-y` | `clamp(4.5rem, 9vw, 8.5rem)` | Vertical rhythm between marketing sections (`.section`) |
+| `--section-y` | `clamp(3.5rem, 6vw, 6.5rem)` | Vertical rhythm between sections (`.section`) |
 
-Beyond those three, spacing is written as plain `rem` values per component (`0.5rem`, `1rem`, `1.4rem 1.5rem`, etc.) rather than a spacing scale — there is no `--space-1`/`--space-2`-style token ladder today. See §10 if that's worth adding.
+### The spacing scale
+
+Every margin, padding and gap comes off this ladder. If the value you want is not here, the answer is the nearest step, not a new hardcoded number.
+
+| Token | Value | | Token | Value |
+|---|---|---|---|---|
+| `--space-1` | `0.25rem` | | `--space-5` | `1.5rem` |
+| `--space-2` | `0.5rem` | | `--space-6` | `2rem` |
+| `--space-3` | `0.75rem` | | `--space-7` | `3rem` |
+| `--space-4` | `1rem` | | `--space-8` | `4rem` |
 
 ### Layout utility classes (`app/globals.css`)
 
-- `.container` — centers content, applies `--measure` + `--gutter`.
-- `.section` — vertical padding via `--section-y`.
-- `.section--ruled` — top hairline (`--bcm-line`).
-- `.section--band` — raised background (`--bcm-grounds`), for alternating section backgrounds down a long page.
-- `.rule` — a standalone horizontal hairline.
+- `.container`: centers content, applies `--measure` + `--gutter`.
+- `.section`: vertical padding via `--section-y`.
+- `.section--ruled`: top hairline (`--bcm-line`).
+- `.section--band`: raised background (`--bcm-grounds`), for alternating section backgrounds down a long page.
+- `.rule`: a standalone horizontal hairline.
 
 ### Radius
 
 | Token | Value | Use |
 |---|---|---|
-| `--radius` | `4px` | Buttons, inputs, nav links — small interactive elements |
-| `--radius-lg` | `10px` | Cards, modals, tables, stat cards — anything that reads as a "surface" |
-| `--radius-full` | `999px` | Pills, tags, chips, progress-bar segments |
+| `--radius` | `4px` | Buttons, inputs, nav links, small interactive elements |
+| `--radius-lg` | `10px` | Cards, modals, tables, stat cards, anything that reads as a "surface" |
+| `--radius-full` | `999px` | Status pills and the two oversized narrative CTAs only |
+
+`--radius-full` is **not** a selector shape. Anything a person picks from is a `--radius` rectangle, see §5.2.
 
 ### Breakpoints
 
-There is **no breakpoint token** — every component picks its own `max-width` in a local `@media` query, which has drifted into a loose, inconsistent set of values across the codebase: `480`, `560`, `640`, `700`, `780`, `860`, `900`, `980`, `1000`, `1280`px all appear at least once. In practice they cluster around four intents:
+There is **no breakpoint token**. Every component picks its own `max-width` in a local `@media` query, which has drifted into a loose, inconsistent set of values across the codebase: `480`, `560`, `640`, `700`, `780`, `860`, `900`, `980`, `1000`, `1280`px all appear at least once. In practice they cluster around four intents:
 
 | Rough breakpoint | Common intent |
 |---|---|
-| ~480px | Smallest phones — tighten a two-up layout further |
+| ~480px | Smallest phones, tighten a two-up layout further |
 | ~560–640px | Forms/duo-fields stack to one column |
 | ~780–860px | Nav collapses, dashboard sidebar goes horizontal |
 | ~900–1000px | Multi-column marketing grids drop a column |
 
-Treat that table as the de facto scale until it's formalized as real tokens (see §10) — new components should snap to the nearest value in it rather than inventing a fifth number.
+Treat that table as the de facto scale until it is formalized as real tokens (see §8). New components should snap to the nearest value in it rather than inventing a fifth number.
 
 ---
 
@@ -147,19 +163,37 @@ Two eased curves, three durations, defined in `styles/tokens.css` and mirrored i
 | Token | Value | Use |
 |---|---|---|
 | `--ease` / `EASE` | `cubic-bezier(0.22, 0.61, 0.36, 1)` | Default interaction easing (hover states, button transitions) |
-| `--ease-out-soft` / `EASE_SOFT` | `cubic-bezier(0.16, 1, 0.3, 1)` | Scroll-reveal easing — softer landing, used by `useReveal`/`useRevealGroup` |
+| `--ease-out-soft` / `EASE_SOFT` | `cubic-bezier(0.16, 1, 0.3, 1)` | Scroll-reveal easing, softer landing, used by `useReveal`/`useRevealGroup` |
 | `--duration-fast` | `0.18s` | Hover/focus micro-transitions |
 | `--duration-base` | `0.32s` | Default transitions (media crossfades, etc.) |
 | `--duration-slow` | `0.6s` | Reveal animations, progress-bar fills |
+| `--reveal-y` | `20px` | The distance **every** reveal travels. Long travel is what makes a page feel like it is assembling itself |
+
+GSAP cannot resolve a CSS variable inside a transform, so `revealDistance()` in `lib/animation/gsapConfig.ts` reads `--reveal-y` and hands GSAP a number. Use it rather than typing a pixel value.
 
 **Every animation must respect `prefers-reduced-motion`.** This is enforced two ways, and any new motion should use one of them rather than rolling its own check:
-- `lib/animation/gsapConfig.ts` exports `prefersReducedMotion()` — GSAP-driven components (`useReveal`, `useRevealGroup`, the roast screens, etc.) branch on it and jump straight to the end state.
+- `lib/animation/gsapConfig.ts` exports `prefersReducedMotion()`, which GSAP-driven components (`useReveal`, `useRevealGroup`, the narrative screens) branch on to jump straight to the end state.
 - `app/globals.css` has a global `@media (prefers-reduced-motion: reduce)` block that clamps all CSS animation/transition durations to near-zero and disables `.reveal`'s hidden-until-JS starting state, as a blanket fallback for anything that doesn't check explicitly.
 
 ### Reveal primitives (`lib/animation/useReveal.ts`)
 
-- `useReveal()` — fades + lifts a single element the first time it scrolls into view (`IntersectionObserver`, threshold 0.15). Give the element `className="reveal"` so it's already hidden before JS/GSAP runs, for progressive enhancement.
-- `useRevealGroup()` — same idea, staggered across a container's direct children (default 0.08s stagger). Use for card grids and feature lists.
+- `useReveal()` fades and lifts a single element the first time it scrolls meaningfully into view. Give the element `className="reveal"` so it is already hidden before GSAP runs, for progressive enhancement.
+- `useRevealGroup()` is the same reveal staggered across a container's direct children (default 0.08s stagger).
+
+**Neither takes a distance, duration or easing override, and new reveals should not invent their own.** All of them share four constants from `gsapConfig.ts`:
+
+| Constant | Value | Why |
+|---|---|---|
+| `revealDistance()` | `--reveal-y`, 20px | One travel distance across the product |
+| `REVEAL_DURATION` | `0.6`, matching `--duration-slow` | One speed |
+| `REVEAL_THRESHOLD` | `0.25` | One trigger point |
+| `REVEAL_ROOT_MARGIN` | `0px 0px -12% 0px` | Ignores the bottom 12% of the viewport, so nothing fires while it is still a sliver past the fold |
+
+Per-element tuning is exactly what made reveals on the same screen land at visibly different speeds. If two things should arrive together, they already will.
+
+### Smooth scrolling (`components/motion/SmoothScroll.tsx`)
+
+Lenis, driven off the GSAP ticker rather than its own rAF loop, so Lenis and ScrollTrigger advance in the same frame. Two loops is what makes reveals land a frame behind the scroll position. Under `prefers-reduced-motion` Lenis never starts and the browser's own scrolling is left alone. Mount it once per page that needs it, not globally.
 
 ### Motion component library (`components/motion/*`)
 
@@ -170,102 +204,123 @@ Small, single-purpose effects, most currently only used on the `/become-a-creato
 | `Spotlight` | Cursor-following radial glow (`bright` variant available) | Every roast screen |
 | `MaskReveal` | Clip-path wipe-in on scroll, plays once | Roast screens (line/turn/bar beats) |
 | `ScrambleText` | Character-scramble-then-settle reveal | Roast cold-open screen |
-| `Strikethrough` | Draws a line through children on scroll-into-view | Home page "what we don't do" list |
-| `DragRail` | Pointer-drag horizontal scroller with release inertia | Home page creator work rail |
+| `Strikethrough` | Draws a line through children on scroll-into-view | Unused since the home page became a coming soon page |
+| `DragRail` | Pointer-drag horizontal scroller with release inertia | Unused since the work rail was removed |
 | `MagneticButton` | Pulls the wrapped element toward the cursor within a radius | Roast "Haan" CTA |
 | `DodgeButton` | Button that flees the cursor a capped number of times, then settles | Roast "Nahi" CTA |
 | `LetterField` | Huge-type word whose letters repel the cursor | Pending/waiting dashboard screen |
 
-These are deliberately reserved for moments that need extra personality (the roast narrative, the waiting screen) — everyday dashboard/portal UI should stay on `useReveal`/plain CSS transitions, not reach for this library by default.
+These are deliberately reserved for moments that need extra personality: the narrative and the waiting screen. Everyday portal UI stays on `useReveal` and plain CSS transitions. `Strikethrough` and `DragRail` currently have no caller; they are kept because `components/motion/*` is a retained library, not because anything renders them.
 
 ---
 
 ## 5. Components
 
-Every shared primitive lives in `components/shared/*`. New screens should reach for these before writing a new one-off — per `HANDOVER_GUIDE.md`'s "adding a new page" checklist.
+Every shared primitive lives in `components/shared/*`. New screens should reach for these before writing a new one-off.
 
 ### 5.1 Button (`Button.tsx` / `Button.module.css`)
 
-Renders as `<Link>` when given `href`, otherwise a real `<button>` — same visual API either way.
+Renders as `<Link>` when given `href`, otherwise a real `<button>`, with the same visual API either way.
 
 | Prop | Values | Notes |
 |---|---|---|
-| `variant` | `primary` \| `secondary` \| `ghost` \| `danger` | `primary` = solid accent, black text — the one CTA per view. `secondary` = outlined, fills accent on hover. `ghost` = text-only, brightens on hover. `danger` = outlined in status-danger, washes on hover — destructive/reject actions only. |
+| `variant` | `primary` \| `secondary` \| `ghost` \| `danger` | `primary` = solid accent, black text, the one CTA per view. `secondary` = outlined, fills accent on hover. `ghost` = text-only, brightens on hover. `danger` = outlined in status-danger, washes on hover, for destructive actions only. |
 | `size` | `default` \| `small` | |
 | `block` | boolean | Full width |
-| `arrow` | boolean | Appends a `→` that nudges right on hover — use for the last/forward action, never on a `danger` or cancel button |
+| `arrow` | boolean | Appends a `→` that nudges right on hover. Use for the last or forward action, never on a `danger` or cancel button |
 
 Disabled state: 50% opacity, no press transform. Every button presses down 1px on `:active`.
 
-### 5.2 Tag & Chip (`Tag.tsx` / `Tag.module.css`)
+### 5.2 OptionTile (`OptionTile.tsx` / `OptionTile.module.css`)
 
-Two exports from one file, both pill-shaped (`--radius-full`), mono font:
+**The one selector control in the product.** Every place a person picks from a set uses it: category, content styles, languages, shoot setup, turnaround, rate band, and the quiz on `/become-a-creator`.
 
-- **`Tag`** — display-only pill (content style, language, turnaround band, etc. on a creator card). `on` prop switches it to the accent-outlined "active" look.
-- **`Chip`** — the toggleable, clickable version used in every multi-select picker (niche, content styles, languages, budget bands) across both registration wizards and the brief form. `active` prop fills it solid accent with black text; inactive chips are ash-on-outline and brighten on hover. Always render as a `<button type="button" aria-pressed>` — don't reinvent this as a checkbox+label pair.
+A bordered rectangular tile, `--radius` (4px), `--bcm-roast` surface, `--bcm-line-strong` border, with a lucide `Check` that fades in when the tile is on. Selected warms the border to `--bcm-accent` and the fill to `--bcm-accent-wash`. The check's box is reserved in both states, so selecting never changes a tile's width and reflows the grid. Minimum height 44px.
+
+`OptionTileGroup` wraps a set. `multiple` decides everything that differs between single and multi select: the role (`radiogroup` vs `group`, `radio` vs `checkbox`), and whether a click replaces the value or toggles it in an array.
+
+Pass `script: true` for a label in a non-Latin script, which applies `--font-indic`, and `rtl: true` for Urdu, which puts `dir="rtl"` on the label alone.
+
+**Do not build a second selector.** The oval outlined chip this replaced is gone, and so is the `Tag`/`Chip` component that produced it. If a new picker needs a shape this does not have, change this component rather than adding a fourth one.
 
 ### 5.3 StatusPill (`StatusPill.tsx` / `StatusPill.module.css`)
 
-The single place every lifecycle status maps to a color. Extend the `STATUS_TONE` map here — never hand-pick a tone for a new status elsewhere.
+The single place every lifecycle status maps to a color. Extend the `STATUS_TONE` map here. Never hand-pick a tone for a new status elsewhere.
 
 | Status | Tone | Status | Tone |
 |---|---|---|---|
-| `approved`, `delivered`, `live`, `selected`, `open` | success | `applied`, `submitted`, `closed` | neutral |
-| `accepted`, `shortlisted` | info | `rejected`, `declined`, `flagged`, `passed` | danger |
-| `in_review`, `pending`, `requested` | warning | | |
+| `approved` | success | `applied` | neutral |
+| `rejected` | danger | `in_review` | warning |
+
+The map still carries tones for statuses from the deleted marketplace model. They are harmless but dead; trim them when the map is next touched.
 
 Labels are auto-derived from the status string (underscores → spaces, capitalized by CSS), with one manual override today: `in_review` → "In review". Add to the `LABEL` map for any future status whose auto-derived label reads wrong.
 
 ### 5.4 FormField (`FormField.tsx` / `FormField.module.css`)
 
-Labeled text input with inline error text. `.duo` class in the same module gives a two-column field row that collapses to one column under 560px. `.chips` gives a wrapping flex row for a group of `Chip`s. Every text/email/tel input in the product should be a `FormField`, not a raw styled `<input>`.
+Labeled text input with inline error text. It spreads its remaining props onto the `<input>`, so it takes a react-hook-form `register()` result directly. `.duo` in the same module gives a two-column field row that collapses to one column under 560px. Every text, email and tel input in the product should be a `FormField`, not a raw styled `<input>`.
 
-### 5.5 Modal (`Modal.tsx` / `Modal.module.css`)
+### 5.5 DataTable (`DataTable.module.css`)
 
-Centered overlay, `Escape` to close, click-outside to close, locks body scroll while open. Max width 460px — this is a focused single-purpose dialog (request confirmation, pitch form), not a general-purpose panel. `.actions` gives a stacked button column at the bottom; `.note` gives small print under the actions (e.g. "prototype — not stored").
+The admin queue look: rounded outer border, mono uppercase headers, hairline row dividers, hover highlight on clickable rows (`.row` vs `.rowStatic`), an `.expanded` state for the raised detail row, and a centered `.empty` state. The creator approval queue is its only caller.
 
-### 5.6 StatCard (`StatCard.tsx` / `StatCard.module.css`)
+### 5.6 DashboardShell (`DashboardShell.tsx` / `DashboardShell.module.css`)
 
-`label` (mono, uppercase, ash) / `value` (display font, `--step-2`) / optional `hint` (small, dimmer). Used for every dashboard overview's stat row across all three portals plus the admin reports page — keep new stat tiles on this component rather than a bespoke card.
+The sidebar and main-content frame behind every logged-in portal screen, wrapped by `CreatorShell` and `AdminShell`. Fixed 248px sidebar on desktop, collapses to a horizontal top bar under 860px. `onLogout` takes a **server action**, rendered inside a `<form action>`, so the shells that wrap it stay Server Components. Sidebar shows the wordmark, a portal label (mono, uppercase), the nav list (`.linkActive` uses the accent wash), and a footer session block. Page content area gets a standard `.pageHead` (title + optional right-aligned action) and `.pageTitle`/`.pageSub` pairing. Reuse that header pattern rather than hand-rolling a new one per page.
 
-### 5.7 DataTable (`DataTable.module.css`)
+### 5.7 AuthPageShell (`AuthPageShell.tsx` / `AuthPageShell.module.css`)
 
-The admin queue/table look: rounded outer border, mono uppercase headers, hairline row dividers, hover highlight on clickable rows (`.row` vs `.rowStatic`), an `.expanded` state for the raised detail row under an expandable row, and a centered `.empty` state. Every admin table (creators, clients, briefs, requests) shares this.
+The frame behind every login page and the application: top brand mark, centered title, body, small-print footer link. Deliberately generic; do not add portal-specific styling to it.
 
-### 5.8 DashboardShell (`DashboardShell.tsx` / `DashboardShell.module.css`)
+### 5.8 SocialProfilesField (`SocialProfilesField.tsx`)
 
-The sidebar + main-content frame behind every logged-in portal screen (client/creator/admin — see `ClientShell`/`CreatorShell`/`AdminShell`, which wrap this). Fixed 248px sidebar on desktop, collapses to a horizontal top bar under 860px. Sidebar shows the wordmark, a portal label (mono, uppercase), the nav list (`.linkActive` uses the accent wash), and a footer session block. Page content area gets a standard `.pageHead` (title + optional right-aligned action) and `.pageTitle`/`.pageSub` pairing — reuse that header pattern rather than hand-rolling a new one per page.
+The structured social control, shared by the application and the profile editor. Instagram is mandatory and always the first row, carrying the follower count beside it. **Add another profile** opens a menu of the platforms not yet used; picking one appends its input row and removes it from the menu. Every added row can be removed, Instagram cannot.
 
-### 5.9 WizardShell (`WizardShell.tsx` / `WizardShell.module.css`)
+Handles normalise before they validate: `lib/social.ts` reduces a pasted profile URL down to a handle, so the same account entered two different ways stores identically. Each platform validates against its own pattern.
 
-Chrome shared by both multistep registration wizards (client and creator): a segmented progress bar (filled segments = done, in-progress segment fills to 100% too — i.e. it reads as "done" the moment you're on it, not partially filled), a mono step counter, a min-height viewport for the step content, and a footer with Back/Next. To add a step to either wizard: add a label, a validation branch, a render branch — the shell itself needs no changes (per HANDOVER_GUIDE.md).
+One row per profile, stored one row per profile. Nothing here joins handles into a string.
 
-### 5.10 AuthPageShell (`AuthPageShell.tsx` / `AuthPageShell.module.css`)
+### 5.9 SampleLinksField (`SampleLinksField.tsx`)
 
-The centered single-column frame behind every login/register page outside the wizards — top brand mark, centered title, centered body, small-print footer link. Simple and deliberately generic; don't add portal-specific styling to it.
+Optional, up to three, added one at a time, each its own input. Separate from social profiles: a handle says where someone posts, a sample link is one specific piece of work. Instagram reel links are the expected case.
 
-### 5.11 VideoPreviewCard (`VideoPreviewCard.tsx` / `VideoPreviewCard.module.css`)
+### 5.10 PayoutDetailsForm (`PayoutDetailsForm.tsx` / `PayoutDetails.module.css`)
 
-The core "hover to preview" card: 4:5 poster image that crossfades to an autoplay-muted looping video on hover (`usePreviewPlayback`), a favorite/shortlist toggle (top-right circular button, fills accent when active), name + meta line, and a rating in mono accent color. This card is reused on Home, `/discover`, `/discover/[slug]`'s portfolio grid, `/client/shortlist`, and the "why video-first" comparison demo — any new place that shows a creator's work should reuse this card rather than a new one.
+The most sensitive surface in the product. Bank or UPI toggle, PAN required either way, and the account number confirmed against a second field that refuses a paste.
+
+**It never receives a full account or PAN number from the server.** `lib/data/creator.ts` masks both to their last four digits before they leave the server, so the summary can only ever render `ending 4321`, and replacing details means entering them in full. Do not add a route that returns these values, and do not log the form's input.
 
 ---
 
 ## 6. Voice & content patterns
 
-Full detail in `PROJECT_REPORT.md` §5, summarized here for quick reference while designing a screen:
+Full detail in `PROJECT_REPORT.md`, summarized here for quick reference while designing a screen:
 
-- **Public/brand-facing copy**: short, assertive, one confident claim per section, no filler. This is the default register for Home, `/discover`, and all client-portal copy.
-- **Creator-facing copy at the top of the funnel**: the `/become-a-creator` narrative and the application wizard both run in Hinglish/Bollywood-flavored voice (original lines only — never reproduced film quotes). "My pitches" carries a lighter version of that same voice into a passed-pitch roast line.
-- **Roast lines are never aimed at ability or worth**, always paired with a live next action (e.g. a link to more open briefs), and are never used for an admin-rejected application — a rejected creator gets plain, respectful copy instead (`StatusTracker`'s rejected state). If you're writing a new roast-style line, that boundary is the one rule that can't bend.
-- **Prototype disclosures**: anywhere the UI does something that won't be true once a backend exists (unsaved passwords, in-memory mutations, demo video reuse), say so in small print rather than silently pretending it's real. Existing examples: client register step 3, creator profile editor, admin login footnote.
+- **Public copy**: short, assertive, one confident claim per section, no filler. The default register for home.
+- **Creator-facing copy at the top of the funnel**: the `/become-a-creator` narrative and the application both run in a Hinglish voice, original lines only, never reproduced film quotes. The application carries a full beat card on its first and last step and a single quiet line on the middle three.
+- **Roast lines are never aimed at ability or worth**, are always paired with a live next action, and are never used for a rejected application. A rejected creator gets plain, respectful copy (`StatusTracker`'s rejected state). That boundary is the one rule that cannot bend.
+- **Say plainly why sensitive data is collected.** The payout tab explains that BCM pays creators directly and needs the details before a first payout, rather than presenting bare fields.
 
 ---
 
-## 7. Open questions worth deciding on
+## 7. Non-negotiable rules
 
-Things a stakeholder should actively decide rather than infer from the code:
+These are not preferences. A change that breaks one of these is wrong even if it looks fine.
 
-- **Portal accents aren't actually differentiated.** `--portal-client`/`--portal-creator`/`--portal-admin` all resolve to the same accent today (see §1). Decide whether the three logged-in portals should read as visually distinct, or whether one shared accent is the intended, simpler outcome — and either implement the differentiation or remove the unused tokens.
-- **No spacing scale.** Layout tokens exist for gutter/measure/section rhythm, but component-internal spacing is ad hoc `rem` values chosen per component rather than a `--space-1…n` ladder. Worth formalizing if the component count keeps growing.
-- **No breakpoint tokens.** See the table in §3 — eleven distinct pixel values across the codebase where four intents would cover it. Worth collapsing into `--bp-sm`/`--bp-md`/`--bp-lg`-style tokens before more components are added.
-- **Licensed meme/reaction assets are still missing** for the `MemeSlot` system used across the roast flow — every slot currently shows its typographic fallback. Tracked in `PROJECT_REPORT.md` §5/§8.
+- **No emojis.** Anywhere, in any component, in any copy. Every icon comes from `lucide-react`.
+- **No em dashes** in any copy, comment or page title. Use a comma, a full stop, or a colon.
+- **No dashed or dotted borders.**
+- **No pill or oval selectors with outline borders.** Selectors are `OptionTile`, see §5.2.
+- **No raw hex, px, or font-family in a component.** Every colour, size, spacing and duration comes from `styles/tokens.css` or `styles/typography.css`.
+- **Every animation respects `prefers-reduced-motion`**, and motion must have a reason: reveal, feedback, or orientation. Nothing decorative, nothing that blocks interaction, no scroll jacking. Kill every GSAP timeline and ScrollTrigger on unmount.
+- **Server Components by default.** `'use client'` only where there is state, an effect, or an event handler.
+- **Languages render in their own script**, never transliterated into English. See §2 for the font stack that makes that legible.
+
+---
+
+## 8. Open questions worth deciding on
+
+- **No breakpoint tokens.** See the table in §3: eleven distinct pixel values across the codebase where four intents would cover it. Worth collapsing into `--bp-sm`/`--bp-md`/`--bp-lg` before more components are added.
+- **Licensed meme assets are still missing** for the `MemeSlot` system used across the narrative flow. Every slot shows its typographic fallback today.
+- **`StatusPill`'s tone map still carries statuses from the deleted marketplace model.** Dead but harmless; trim on next touch.
+- **`Strikethrough` and `DragRail` have no caller.** Keep as library, or delete.

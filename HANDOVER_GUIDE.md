@@ -1,6 +1,6 @@
 # Handover Guide
 
-How this codebase is put together, and how to operate/extend each piece. Read PROJECT_REPORT.md first for the *what and why*; this is the *how*.
+How this codebase is put together, and how to extend each piece. Read [PROJECT_REPORT.md](./PROJECT_REPORT.md) first for the what and why, and [DECISIONS.md](./DECISIONS.md) for why things are shaped the way they are. This is the how.
 
 ## Running it
 
@@ -8,90 +8,112 @@ How this codebase is put together, and how to operate/extend each piece. Read PR
 npm install
 npm run dev        # http://localhost:3000
 npm run typecheck  # tsc --noEmit
-npm run build      # production build — also type-checks and lints
+npm run build      # production build, also type-checks and lints
+npm run types:db   # regenerate lib/database.types.ts from the linked Supabase project
 ```
 
-No environment variables are required — there is no backend yet. Everything is mock data (`lib/data/*`) and a mock localStorage session (`lib/auth/mockAuth.ts`).
+**Environment variables are required.** Copy `.env.example` to `.env.local` and fill it from the Supabase dashboard. Without them the app builds but every query fails. Full setup, including the migrations and the Resend SMTP config, is in [`supabase/README.md`](./supabase/README.md).
 
 ## Project structure
 
 ```
-app/                  routes only — no business logic lives here
-  page.tsx             home
-  client/…             brand portal routes
-  creator/…            creator portal routes
-  admin/…              admin routes (never linked publicly)
+app/                   routes and server actions
+  page.tsx              home
+  actions/              server actions: auth, application, profile, review
+  auth/callback/        where a magic link lands
+  become-a-creator/     narrative, then the application
+  creator/…             creator portal
+  admin/…               admin, approve and reject only
 
 components/
-  home/                landing page sections + entrance animation
-  shared/              cross-portal primitives (Button, Modal, DataTable, DashboardShell…)
-  client/  creator/  admin/    portal-specific components
+  home/                 header, entrance overlay, coming soon, footer
+  roast/                the /become-a-creator narrative
+  shared/               cross-portal primitives
+  creator/  admin/      portal-specific components
+  motion/               single-purpose motion effects
 
 lib/
-  types.ts             every domain type — the contract the future backend fills
-  routes.ts            every URL, in one place
-  data/                mock arrays + query helpers (the "one seam" — see below)
-  auth/                mock session handling
-  animation/            GSAP helpers (useReveal, gsapConfig)
+  database.types.ts     generated from the schema, do not hand edit
+  types.ts              every domain type, aliased off the generated types
+  routes.ts             every URL, in one place
+  schemas/              Zod, shared by form and server action
+  supabase/             browser, server and service-role clients
+  data/                 server-side reads
+  social.ts             handle normalisation and per-platform validation
+  languages.ts          the twelve languages, in their own scripts
+  animation/            GSAP helpers and the shared reveal constants
+
+supabase/
+  migrations/           the schema, run in order
+  README.md             setup
 
 styles/
-  tokens.css           color, spacing, radius, motion — change once, applies everywhere
-  typography.css       fonts + type scale
+  tokens.css            colour, spacing, radius, motion
+  typography.css        fonts and type scale
+
+middleware.ts           session refresh, and redirects for anonymous traffic
 ```
 
-`app/`, `components/client/`, `components/creator/`, `components/admin/` and `components/home/` are kept strictly separate — nothing home-specific lives in a portal folder and vice versa, per the brief.
+## Where authorization actually lives
 
-## Colors & fonts — change once, apply everywhere
+**Row Level Security in Postgres is the security boundary.** Not React, not middleware.
 
-Every color in the product is a CSS variable defined in **`styles/tokens.css`**. To rebrand: change `--bcm-accent` (currently `#C4A370`) and every button, link, focus ring, and status pill updates. Fonts and the type scale (the `--step-*` clamp values) live in **`styles/typography.css`**. No component should ever hardcode a hex value or `font-family` — if you find one, it's a bug.
+A creator's query returns only their own row because the database refuses the rest, which is why the reads in `lib/data/creator.ts` do not filter by id defensively. The Server Component redirects and the middleware are convenience, so a signed-out visitor gets a login page instead of an empty screen. Removing them would be a UX regression, not a security hole.
 
-## The entrance animation
+Three clients, and the difference matters:
 
-`components/home/IntroOverlay.tsx`. Plays once per browser tab (`sessionStorage.bcm_intro_seen`) — clear that key in devtools to replay it. GSAP timeline: "Welcome to" fades up → "blackcoffee." staggers in letter-by-letter from the left → "UGC" pops in the accent color → the whole overlay fades out, which calls `onComplete()` and triggers the hero's own staggered reveal (`components/home/Hero.tsx`, driven by its `start` prop). To retune timing, edit the `gsap.timeline()` calls in `IntroOverlay.tsx` — durations and stagger are the only numbers that matter. It fully respects `prefers-reduced-motion` (skips straight to the static state).
+| Client | Runs as | Use for |
+|---|---|---|
+| `lib/supabase/client.ts` | The signed-in user | Browser-side queries. RLS applies |
+| `lib/supabase/server.ts` | The signed-in user | Server Components, Route Handlers, Server Actions. RLS applies |
+| `lib/supabase/admin.ts` | Service role | **Bypasses RLS.** Two places only: minting the auth user on submit, and BCM verifying payouts |
 
-Scroll-triggered reveals elsewhere on the site use `lib/animation/useReveal.ts` (`useReveal` for a single element, `useRevealGroup` for a staggered list/grid) — attach the returned ref to any element and it fades/lifts in the first time it's scrolled into view.
+`admin.ts` imports `server-only`, so importing it from a client component is a build error. Keep it that way.
 
-## Mock auth — and where real auth plugs in
+## Auth
 
-`lib/auth/mockAuth.ts` is a role-scoped (`client` / `creator` / `admin`) localStorage session with **no real password check**. `loginClient`/`loginCreator` just look up the email in the mock data; `loginAdmin` checks a single hardcoded dev credential (`admin` / `blackcoffee2026`, printed on the login screen itself). `registerClient`/`registerCreator` push a new record into the mock arrays and log the user in immediately.
+Supabase magic link, no passwords, delivered over Resend as Supabase's SMTP provider. The app never calls Resend directly.
 
-Every call site is written against this same small surface (`getSession`, `logout`, `login*`, `register*`) specifically so that swapping this file for real Supabase Auth calls does not require touching `RequireAuth`, `useAuth`, or any page. That swap is the single highest-priority backend task.
+- **Returning creator or admin**: `sendMagicLink` in `app/actions/auth.ts`. It passes `shouldCreateUser: false`, without which anyone could mint an auth user with no application behind it. The `next` destination is picked from a fixed pair, never taken from the form body, or it becomes an open redirect.
+- **New application**: `app/actions/application.ts` mints the auth user with the service role, then burns a one-time token immediately to establish the session, so the creator lands on their dashboard without going to their inbox. Everything after that runs under their own session so RLS checks the writes. If any step fails the auth user is deleted rather than left orphaned.
+- **Admin** is membership in the `admins` table, checked by the `is_admin()` SQL function that the policies call. Add a row by hand; nothing in the app writes to that table.
 
-`components/shared/RequireAuth.tsx` wraps every protected dashboard page and redirects to that portal's own login if there's no session.
+## Adding a field
+
+The schema is the source of truth and everything else is derived, so the order matters:
+
+1. Add a migration under `supabase/migrations/`, and run it.
+2. `npm run types:db` to regenerate `lib/database.types.ts`.
+3. Add the field to the relevant Zod schema in `lib/schemas/`. Both the form and the server action import it, so they cannot drift.
+4. Add the input. The form is `components/creator/RegisterWizard.tsx`, the profile editor is `components/creator/ProfileEditor.tsx`. Reach for `OptionTile` for anything selected from a set.
+5. Write it in the server action.
+
+Never hand-write a type that duplicates a table. If a column changes, the regenerated types should break the code at the places that care.
+
+## Adding a page
+
+1. Add the route under the matching `app/` folder, and the path to `lib/routes.ts`. No hardcoded path strings in JSX.
+2. Keep it a Server Component. `'use client'` only where there is state, an effect, or an event handler.
+3. Do the auth check in the page itself, with `getCurrentCreator()` or `isCurrentUserAdmin()` and a `redirect`. There is no `RequireAuth` wrapper any more, because the check belongs on the server.
+4. Wrap the body in `CreatorShell` or `AdminShell` for nav chrome, and add the route to that shell's `NAV`.
+5. Reach for `components/shared/*` before writing a new primitive. See [DESIGN_GUIDE.md](./DESIGN_GUIDE.md) §5.
+
+## Motion
+
+`components/home/IntroOverlay.tsx` is the entrance: three words stagger up out of a clipped mask, hold, then the black screen lifts. It reads `sessionStorage.bcm_intro_seen` **during the first render**, not in an effect, so a repeat visit never mounts the overlay and never flashes black. Clear that key in devtools to replay it.
+
+Scroll reveals use `lib/animation/useReveal.ts`. Neither hook takes a distance, duration or easing override, and new reveals should not invent their own: all of them share four constants from `gsapConfig.ts`. Per-element tuning is what made reveals on the same screen land at visibly different speeds.
+
+`components/motion/SmoothScroll.tsx` runs Lenis off the GSAP ticker rather than its own rAF loop, so Lenis and ScrollTrigger advance in the same frame. Mount it per page, not globally. It never starts under `prefers-reduced-motion`.
+
+Every animation must respect `prefers-reduced-motion`, and every GSAP timeline must be killed on unmount.
+
+## Meme content
+
+`content/memes.ts` is a manifest where every slot ships with `src` empty, so `MemeSlot` falls back to a typographic caption. The page is fully shippable with zero assets. Once BCM has licensed, self-made or cleared assets, drop them under `public/media/memes/` and fill in `src`. Nothing else changes.
+
+No film stills, GIFs or copyrighted clips are committed here, deliberately: that is real legal exposure for a commercial product.
 
 ## The admin URL
 
-`/admin/login` is not linked from any header, footer, or nav in the entire app — it's reachable only by typing it. That satisfies "admin login from URL only" today. Before a real launch, harden it further: move the path itself into an environment variable so it's not a fixed, guessable string in source, add IP allowlisting or a second factor, and replace the hardcoded credential with real server-side admin auth.
-
-## Data — the "one seam" pattern
-
-Every domain object (`Creator`, `ClientAccount`, `MatchRequest`, `AdminNote`) is typed in `lib/types.ts` the way the eventual Postgres tables / API responses should look. `lib/data/*.ts` currently returns mock arrays; when the backend exists, each function in that folder (`getApprovedCreators`, `getRequestsForClient`, etc.) becomes an async `fetch` against the real API with the **same name and return shape**. No component should need to change — only the one function it calls.
-
-A few of these mock functions **mutate the in-memory arrays directly** (`setCreatorStatus`, `createRequest`, `addNote`, etc.) so admin actions and client requests feel real within a session. This resets on a full page reload — that's expected for a mock and goes away the moment real persistence exists.
-
-## Multistep wizards
-
-Both registration flows (`components/client/RegisterWizard.tsx`, `components/creator/RegisterWizard.tsx`) share one chrome component, `components/shared/WizardShell.tsx` — progress bar, step counter, animated step transitions, Back/Next footer. Each wizard owns its own step content and validation as a `switch`-style set of `{step === N && (...)}` blocks with a single form-state object. To add a step: add a label to `STEP_LABELS`, a validation branch, and a render branch — the shell handles the rest.
-
-## Swapping in real meme content
-
-`components/creator/MemeBeat.tsx` renders original Hinglish text by default. Once you have real licensed meme images or GIFs, drop them in `public/media/memes/` and pass `imageSrc` (and `imageAlt`) to the relevant entry in the `MEME_BEATS` array at the top of `components/creator/RegisterWizard.tsx` — no other code changes.
-
-## Mock vs. real — checklist
-
-| Area | Today | Before launch |
-|---|---|---|
-| Auth | localStorage, no password check | Supabase Auth, real sessions, server-side checks |
-| Admin credential | Hardcoded in `mockAuth.ts` | Real admin accounts, server-verified |
-| Data | In-memory arrays in `lib/data/*` | Postgres via Prisma, behind the same function names |
-| Video | Static demo files in `public/media/creators` | Mux (or Bunny Stream) direct upload + playback |
-| Requests/notes | Mutated in memory, reset on reload | Persisted rows, real notifications |
-| Admin URL | Unlinked `/admin/login` | Env-configurable path + IP allowlist / 2FA |
-| Validation | Client-side only | Shared Zod schemas, enforced server-side too |
-
-## Adding a new page
-
-1. Decide which of the four surfaces it belongs to (`home` / `client` / `creator` / `admin`) and add the route under the matching `app/` folder.
-2. Protected pages: wrap the page body in `<RequireAuth role="…" loginHref={ROUTES.…}>` and the matching `*Shell` component (`ClientShell` / `CreatorShell` / `AdminShell`) for nav chrome.
-3. Add the route to `lib/routes.ts` rather than hardcoding the path anywhere.
-4. Reach for `components/shared/*` before writing a new primitive — `Button`, `FormField`, `Chip`, `Modal`, `DataTable`, `StatCard`, `StatusPill` cover almost everything a new screen needs.
+`/admin/login` is linked only from the home menu. Before a real launch, harden it: IP allowlisting or a second factor. Magic link already removed the hardcoded credential that used to sit in source.
