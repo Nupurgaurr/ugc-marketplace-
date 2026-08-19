@@ -42,7 +42,7 @@ export default function PendingStage({ role, submittedAt }: { role: Role; submit
     };
   }, []);
 
-  const loginHref = role === 'client' ? ROUTES.client.login : ROUTES.creator.login;
+  const loginHref = role === 'admin' ? ROUTES.admin.login : ROUTES.creator.login;
 
   return (
     <div className={styles.stage}>

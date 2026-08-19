@@ -15,18 +15,6 @@ export default function Footer() {
 
         <div className={styles.columns}>
           <div>
-            <p className={styles.colTitle}>Brands</p>
-            <Link href={ROUTES.discover} className={styles.colLink}>
-              Find a creator
-            </Link>
-            <Link href={ROUTES.client.register} className={styles.colLink}>
-              Register a brand
-            </Link>
-            <Link href={ROUTES.client.login} className={styles.colLink}>
-              Log in
-            </Link>
-          </div>
-          <div>
             <p className={styles.colTitle}>Creators</p>
             <Link href={ROUTES.becomeCreator} className={styles.colLink}>
               Become a partner

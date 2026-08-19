@@ -11,7 +11,7 @@ export default function CreatorLoginPage() {
       title="Wapas aa gaye."
       footer={
         <>
-          Not a partner yet? <Link href={ROUTES.creator.register}>Apply here</Link>
+          Not a partner yet? <Link href={ROUTES.creator.apply}>Apply here</Link>
         </>
       }
     >

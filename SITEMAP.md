@@ -1,34 +1,24 @@
 # Sitemap
 
-Every route in the app, grouped by surface. "Auth" = requires a logged-in session for that role (`RequireAuth`, redirects to that portal's own login if missing). Nothing under `/admin` is linked from anywhere else in the app — see PAGE_CONTENT_MAP.md.
+Every route in the app. "Auth" = requires a logged-in session for that role (`RequireAuth`, redirects to that portal's own login if missing). Nothing under `/admin` is linked from anywhere else in the app.
 
 ```
-/                               Home                              public
+/                                Home                                public
 
-/client
-├── /register                   Register your brand               public
-├── /login                      Brand login                       public
-├── /discover                   Browse creators                   public (shortlist/request actions gate into login)
-├── /dashboard                  Overview                          🔒 client
-├── /shortlist                  Shortlist                         🔒 client
-├── /requests                   Requests                          🔒 client
-└── /brief                      Post a brief                      🔒 client
+/become-a-creator                Pre-application narrative           public
+/become-a-creator/apply          Application wizard                  public
 
 /creator
-├── /register                   Become a creator (wizard)          public
-├── /login                      Creator login                     public
-├── /dashboard                  Overview                          🔒 creator
-├── /profile                    Profile & portfolio                🔒 creator
-└── /requests                   Requests (inbox)                   🔒 creator
+├── /login                       Creator login                       public
+├── /dashboard                   Overview + application status       creator
+└── /profile                     Profile                             creator
 
-/admin                          (never linked in any UI — URL only)
-├── /login                      Admin login                       public URL, not discoverable
-├── /dashboard                  Overview                          🔒 admin
-├── /creators                   Creator approvals                  🔒 admin
-├── /clients                    Client approvals                   🔒 admin
-├── /requests                   Requests / match tracking          🔒 admin
-└── /reports                    Reports                            🔒 admin
+/admin                           (never linked in any UI except the home menu)
+├── /login                       Admin login                         public URL
+└── /creators                    Creator approvals                   admin
 ```
+
+Nine routes. Brands do not hold accounts and have no surface in this product: BCM owns the creator roster and brings creators work outside the app.
 
 ## Structure diagram
 
@@ -36,38 +26,22 @@ Every route in the app, grouped by surface. "Auth" = requires a logged-in sessio
 flowchart TD
     Home["/  Home"]
 
-    Home --> CReg["/client/register"]
-    Home --> CLogin["/client/login"]
-    Home --> CDiscover["/client/discover\n(public browsing)"]
-
-    Home --> KReg["/creator/register"]
+    Home --> Roast["/become-a-creator<br/>(narrative)"]
+    Roast --> KApply["/become-a-creator/apply<br/>(wizard)"]
     Home --> KLogin["/creator/login"]
 
-    CDiscover -.shortlist/request gate.-> CLogin
-    CReg --> CDash["/client/dashboard 🔒"]
-    CLogin --> CDash
-    CDash --> CShort["/client/shortlist 🔒"]
-    CDash --> CReq["/client/requests 🔒"]
-    CDash --> CBrief["/client/brief 🔒"]
-
-    KReg --> KDash["/creator/dashboard 🔒"]
+    KApply --> KDash["/creator/dashboard"]
     KLogin --> KDash
-    KDash --> KProf["/creator/profile 🔒"]
-    KDash --> KReq["/creator/requests 🔒"]
+    KDash --> KProf["/creator/profile"]
 
-    AdminURL["/admin/login\n(typed directly — not linked)"] --> ADash["/admin/dashboard 🔒"]
-    ADash --> AC["/admin/creators 🔒"]
-    ADash --> ACl["/admin/clients 🔒"]
-    ADash --> AReq["/admin/requests 🔒"]
-    ADash --> ARep["/admin/reports 🔒"]
+    Home --> ALogin["/admin/login"]
+    ALogin --> AC["/admin/creators"]
 ```
 
 ## Navigation reality — who can reach what
 
-- **Home header**: links to `/client/discover`, `/creator/register`, and a "Log in" menu with `/client/login` + `/creator/login`. If a session already exists (either role), it collapses to a single "Dashboard" button. Admin is never in this list.
-- **Client portal sidebar** (`ClientShell`): Overview, Discover creators, Shortlist, Requests, Post a brief.
-- **Creator portal sidebar** (`CreatorShell`): Overview, Profile & portfolio, Requests.
-- **Admin sidebar** (`AdminShell`): Overview, Creator approvals, Client approvals, Requests, Reports.
-- **`/admin/login`**: reachable only by typing the URL. No button, link, footer entry, or redirect anywhere in the codebase points to it.
+- **Home header**: logo left, hamburger right at every breakpoint. The menu holds two items: Become a creator, Admin login.
+- **Creator portal sidebar** (`CreatorShell`): Overview, Profile.
+- **Admin sidebar** (`AdminShell`): Creator approvals. Admin does one thing here, approve and reject. It is not expanded further in this repo.
 
-Full route constants live in [`lib/routes.ts`](./lib/routes.ts) — that file is the single source of truth this sitemap is generated from by hand; keep them in sync when routes change.
+Full route constants live in [`lib/routes.ts`](./lib/routes.ts) — that file is the single source of truth this sitemap is kept in sync with by hand.

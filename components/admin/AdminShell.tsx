@@ -6,14 +6,7 @@ import DashboardShell, { type NavItem } from '@/components/shared/DashboardShell
 import { useAuth } from '@/lib/auth/useAuth';
 import { ROUTES } from '@/lib/routes';
 
-const NAV: NavItem[] = [
-  { label: 'Overview', href: ROUTES.admin.dashboard },
-  { label: 'Creator approvals', href: ROUTES.admin.creators },
-  { label: 'Client approvals', href: ROUTES.admin.clients },
-  { label: 'Brief approvals', href: ROUTES.admin.briefs },
-  { label: 'Requests', href: ROUTES.admin.requests },
-  { label: 'Reports', href: ROUTES.admin.reports },
-];
+const NAV: NavItem[] = [{ label: 'Creator approvals', href: ROUTES.admin.creators }];
 
 export default function AdminShell({
   pageTitle,

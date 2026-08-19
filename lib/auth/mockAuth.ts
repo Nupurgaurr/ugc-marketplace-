@@ -1,22 +1,15 @@
-import type { Creator, ClientAccount } from '../types';
-import { creators, RATE_BAND_RANGES } from '../data/creators';
-import { clients } from '../data/clients';
+import type { Creator } from '../types';
+import { creators } from '../data/creators';
 import { makeId } from '../utils';
 
 /**
- * DEV ONLY — mock authentication.
- *
- * There is no backend yet, so "auth" here is a role-scoped localStorage
- * session plus a plain lookup/push against the in-memory mock arrays in
- * lib/data. No password is actually checked. This exists purely so the
- * three portals feel real to click through.
- *
- * Before launch this whole file is replaced by Supabase Auth (see
- * HANDOVER_GUIDE.md) — every call site (`useAuth`, `RequireAuth`) is written
- * against this same small surface so that swap does not touch components.
+ * TEMPORARY AUTH. A role-scoped localStorage session over the in-memory
+ * store in lib/data/creators.ts. No password is verified. Deleted in Task 2
+ * when Supabase Auth (email magic link) replaces it — `useAuth` and
+ * `RequireAuth` are the only call sites.
  */
 
-export type Role = 'client' | 'creator' | 'admin';
+export type Role = 'creator' | 'admin';
 
 export interface Session {
   role: Role;
@@ -53,15 +46,6 @@ export function logout(role: Role) {
   window.dispatchEvent(new Event('bcm-session-change'));
 }
 
-/** Look up (or in a real backend, verify) — mock accepts any password. */
-export function loginClient(email: string): { ok: true; session: Session } | { ok: false; error: string } {
-  const account = clients.find((c) => c.email.toLowerCase() === email.trim().toLowerCase());
-  if (!account) return { ok: false, error: 'No brand account found with that email. Register first.' };
-  const session: Session = { role: 'client', id: account.id, name: account.brand, email: account.email };
-  writeSession(session);
-  return { ok: true, session };
-}
-
 export function loginCreator(email: string): { ok: true; session: Session } | { ok: false; error: string } {
   const account = creators.find((c) => c.email.toLowerCase() === email.trim().toLowerCase());
   if (!account) return { ok: false, error: 'No creator account found with that email. Apply first.' };
@@ -70,7 +54,6 @@ export function loginCreator(email: string): { ok: true; session: Session } | { 
   return { ok: true, session };
 }
 
-/** DEV ONLY credential. Replace with real server-side admin auth before launch. */
 const ADMIN_CREDENTIALS = { username: 'admin', password: 'blackcoffee2026' };
 
 export function loginAdmin(username: string, password: string): { ok: true; session: Session } | { ok: false; error: string } {
@@ -80,34 +63,6 @@ export function loginAdmin(username: string, password: string): { ok: true; sess
   const session: Session = { role: 'admin', id: 'admin', name: 'Admin', email: 'admin@blackcoffee.media' };
   writeSession(session);
   return { ok: true, session };
-}
-
-export interface ClientRegistration {
-  brand: string;
-  website: string;
-  contactName: string;
-  email: string;
-  phone: string;
-  industries: string[];
-  sellsWhere: string[];
-  targetLanguages: string[];
-  contentStylesNeeded: string[];
-  monthlyBudgetBand: string;
-  typicalVolume: string;
-  usageRights: string;
-}
-
-export function registerClient(data: ClientRegistration): Session {
-  const account: ClientAccount = {
-    id: makeId('cl'),
-    ...data,
-    status: 'pending',
-    submittedAt: new Date().toISOString().slice(0, 10),
-  };
-  clients.unshift(account);
-  const session: Session = { role: 'client', id: account.id, name: account.brand, email: account.email };
-  writeSession(session);
-  return session;
 }
 
 export interface CreatorRegistration {
@@ -125,31 +80,14 @@ export interface CreatorRegistration {
 }
 
 export function registerCreator(data: CreatorRegistration): Session {
-  const rateRange = RATE_BAND_RANGES[data.rateBand] ?? { min: 0, max: 0 };
   const account: Creator = {
     id: makeId('c'),
-    slug: data.name.toLowerCase().trim().replace(/\s+/g, '-'),
-    name: data.name,
-    email: data.email,
-    phone: data.phone,
-    category: data.category,
-    contentStyles: data.contentStyles,
-    languages: data.languages,
-    city: data.city,
-    state: '',
-    rateMin: rateRange.min,
-    rateMax: rateRange.max,
-    turnaround: data.turnaround,
-    shootSetup: data.shootSetup,
+    ...data,
     bio: '',
-    availability: 'Pending approval',
-    handles: data.handles,
+    availability: '',
     status: 'applied',
     submittedAt: new Date().toISOString().slice(0, 10),
     approvedAt: null,
-    preview: { posterUrl: '/media/creators/aisha-rahman.jpg', previewUrl: '/media/creators/aisha-rahman.mp4', durationSec: 6 },
-    portfolio: [],
-    rating: 0,
   };
   creators.unshift(account);
   const session: Session = { role: 'creator', id: account.id, name: account.name, email: account.email };

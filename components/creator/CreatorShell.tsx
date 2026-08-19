@@ -8,10 +8,7 @@ import { ROUTES } from '@/lib/routes';
 
 const NAV: NavItem[] = [
   { label: 'Overview', href: ROUTES.creator.dashboard },
-  { label: 'Profile & portfolio', href: ROUTES.creator.profile },
-  { label: 'Briefs', href: ROUTES.creator.briefs },
-  { label: 'My pitches', href: ROUTES.creator.pitches },
-  { label: 'Requests', href: ROUTES.creator.requests },
+  { label: 'Profile', href: ROUTES.creator.profile },
 ];
 
 export default function CreatorShell({

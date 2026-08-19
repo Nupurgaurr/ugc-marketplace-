@@ -20,7 +20,7 @@ export default function LoginForm() {
       setError(result.error);
       return;
     }
-    router.push(ROUTES.admin.dashboard);
+    router.push(ROUTES.admin.creators);
   };
 
   return (

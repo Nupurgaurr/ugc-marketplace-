@@ -1,87 +1,65 @@
-# UGC Creator Marketplace — Project Report
+# Black Coffee Media UGC Network — Project Report
 
 ## 1. Summary
 
-A closed, private UGC creator marketplace, built and owned by us, with three sides:
+A managed UGC creator network owned and operated by Black Coffee Media. BCM holds the creator roster, vets every applicant, and brings creators paid work directly. There are three surfaces:
 
-- **Home** — the public front door. Confident, brief, video-first.
-- **Creator** — apply, build a profile, upload a portfolio, receive requests.
-- **Client (brand)** — browse approved creators, watch their work, shortlist and request.
-- **Admin** — the operator layer. Vets every creator and client, coordinates matches, moderates.
+- **Home** — the public front door. Currently a coming soon page.
+- **Creator** — apply, track application status, keep a profile and payout details current.
+- **Admin** — BCM. The operator. Approves and rejects creator applications.
 
-We sit in the middle as the marketplace operator: nothing goes live without a person approving it. Over time the platform monetizes through commission, subscription, or per-request fees — the way Billo, Trend and Insense monetize their own networks.
+Brands do not hold accounts and do not interact with creators through this product. Work reaches creators through BCM, not through a marketplace transaction in the app.
 
-This repository is the **frontend build**: every screen described below exists and is clickable, backed by mock data and a mock (localStorage) auth layer so the full product experience can be evaluated before any backend is written. Section 6 covers what backend we recommend and why.
+This is Phase 1. It is a real product on a real backend, not a prototype.
 
-## 2. Market Position
+## 2. How It Works
 
-Existing UGC platforms split into direct marketplaces (Billo, Insense, JoinBrands, Collabstr) and curated/campaign networks (Trend, Influee, Cohley). Common gaps across the category:
+1. **Creator applies** through `/become-a-creator` (narrative) into `/become-a-creator/apply` (the five-step application).
+2. **The record is created** with status `applied`. The creator is signed in and lands on the dashboard.
+3. **Dashboard shows a waiting state** until BCM reviews.
+4. **BCM moves the application** to `in_review`, then `approved` or `rejected`. Approved creators get the full dashboard. Rejected creators get a plain, respectful message.
+5. **Approved creators add payout details** so BCM can pay them directly for work it brings them.
 
-- Monthly minimums or subscriptions before a brand can even browse.
-- Profile-first browsing instead of video-first — you have to click into everything to judge fit.
-- No regional-language-first product for the Indian market.
-- No lane for a human-vetted, high-touch relationship alongside self-serve.
-
-This product is built directly against those four gaps: zero minimum to browse, video-first hover-to-preview grid, a human admin queue behind every creator and client, and Hindi/Tamil/Bengali/etc. as first-class filters, not an afterthought.
-
-## 3. How It Works
-
-1. **Creator applies** — public "Become a creator" flow, no invite required.
-2. **Admin reviews** — quality and fit checked before the creator is visible to anyone.
-3. **Creator profile goes live** — portfolio, niche, languages, availability.
-4. **Client registers** — self-serve, any brand. Browsing itself never requires an account.
-5. **Client browses or posts a brief** — video-first grid with filters, or describe a need for admin to match.
-6. **Admin coordinates the match** — creator delivers, client approves, admin oversees quality throughout.
-
-## 4. What's Built
-
-### Creator side
-Public multistep application → admin review → live profile with portfolio, bio, availability. Dashboard with an application status tracker (Applied → In review → Approved → Live), a profile/portfolio editor, and an incoming request inbox (accept/decline).
-
-### Client side
-Public, no-account video-first discovery grid with filters (category, content style, language, location, rate) and free-text search. Shortlisting and requesting a creator are the two actions gated behind a free account — everything else stays open. Multistep brand registration, dashboard, shortlist, request tracking, and a "post a brief" path for clients who'd rather describe a need than browse.
-
-### Admin side
-Reachable only at `/admin/login` — never linked from any nav, footer, or other portal. Creator approval queue and client approval/moderation queue, both with an expandable row (full application + private internal notes), an all-creators/all-clients view, a request/match tracking table, and a lightweight reports page.
+## 3. What's Built
 
 ### Home
-A single confident landing page — not a wall of marketing copy. Full-black entrance animation ("Welcome to blackcoffee. UGC", staggered in from the left, dezerv-style) on first load per session, then a staggered hero reveal. Three short sections (how it works, the work itself, why us) and one closing dual-CTA. GSAP drives every reveal, scroll-triggered via IntersectionObserver, and respects `prefers-reduced-motion`.
+Full-black entrance transition on first load of a browser session, then a coming soon page. GSAP drives the entrance; it skips instantly on repeat visits and under `prefers-reduced-motion`. The header carries a logo and a hamburger at every breakpoint, opening to two items: Become a creator, Admin login.
 
-## 5. Brand & Tone
+### Creator side
+A scroll-narrative at `/become-a-creator` making the case for why a vetted roster beats cold DMs, handing off to the five-step Hinglish application at `/become-a-creator/apply`. After submit: an application status tracker, a waiting state until approval, a profile editor, and payout details.
 
-The public copy is written to read as the standard, not an option among many — short, assertive headlines, no filler paragraphs, one confident claim per section. The creator application is the deliberate exception: playful, Hinglish, Bollywood-flavored copy at every step (original lines, not reproduced film quotes), because that's the register that gets a real creator to actually finish an application instead of bouncing.
+### Admin side
+Reachable at `/admin/login`. A creator approval queue with an expandable row and a pending/all toggle. Approve and reject, nothing else. Admin is owned by Nupur and built out separately.
 
-Accent color: `#C4A370` (warm gold), replacing the prototype's amber. Canvas stays dark, warm-neutral, as before. All tokens live in `styles/tokens.css` and `styles/typography.css` — see HANDOVER_GUIDE.md.
+### Motion system
+A small shared motion library (`components/motion/*`) backing the expressive surfaces: a cursor-repelling word for the waiting screen, a cursor-fleeing button and a magnetic button for the application's closing ask, a clip-path text wipe and character-scramble reveal for the narrative screens, and a cursor-following spotlight.
 
-## 6. Technical Approach
+## 4. Brand & Tone
 
-### Frontend (built)
-Next.js 14 (App Router) + TypeScript + CSS Modules + GSAP. No CSS framework — a single disciplined token file drives color and type across every screen. See HANDOVER_GUIDE.md for the full structure.
+Public copy reads as the standard, not an option among many: short, assertive headlines, one confident claim per section. The creator application is the deliberate exception, playful and Hinglish throughout, because that is the register that gets a real creator to finish an application instead of bouncing. Admin rejection copy is the hard boundary on that voice: always plain and respectful, never a roast.
 
-### Backend (recommended, not yet built)
+Every meme slot in the narrative flow (`components/shared/MemeSlot.tsx`, driven by `content/memes.ts`) ships with `src` empty, so each slot falls back to its typographic caption. That is a deliberate placeholder pending licensed assets.
 
-| Layer | Recommendation | Why |
-|---|---|---|
-| Auth | Supabase Auth (email/password + OTP) | Fastest to stand up, ships a managed Postgres alongside it, matches the JWT/session model the frontend already assumes |
-| Database | Postgres (Supabase-managed) + Prisma | Prisma schema maps directly onto `lib/types.ts` — minimal translation layer |
-| API | Next.js Route Handlers (`app/api/*`) at MVP scale | One deployable, one repo, fastest path to a working backend; extract to a standalone Node/Express service later only if scale demands it |
-| Video | Mux | Best analytics/DX of the managed options, direct-upload + transcode + CDN in one API, matches the report's Section 6 comparison. Bunny Stream is the fallback if budget is the binding constraint |
-| Non-video storage | Supabase Storage or S3 | Avatars, resumes/decks if ever needed |
-| Hosting | Vercel | Native Next.js deploys, zero-config |
-| Security | Supabase session cookies (JWT), rate limiting on public write endpoints (application submit, login) via Upstash Ratelimit, Zod validation shared between wizard forms and route handlers | Matches the report's "JWT, OAuth, rate limiting, encryption" requirement without hand-rolling auth |
+Accent color: `#C4A370` (warm gold) on a dark, warm-neutral canvas. All tokens live in `styles/tokens.css` and `styles/typography.css`. No component hardcodes a hex or a px value.
 
-This is a recommendation, not a decision made unilaterally — see HANDOVER_GUIDE.md's "mock vs. real" checklist for exactly what today's frontend assumes the backend will provide.
+## 5. Technical Approach
 
-## 7. Roadmap
+Next.js 14 (App Router), TypeScript, CSS Modules, GSAP. No CSS framework: a single token file drives color, type, spacing and motion across every screen.
 
-Automation ideas kept explicitly out of this phase (per the original research), roughly in the order they earn their cost:
+| Layer | Choice |
+|---|---|
+| Database | Supabase Postgres |
+| Auth | Supabase Auth, email magic link. No passwords |
+| Authorization | Row Level Security on every table, enforced in the database |
+| Validation | Zod, shared between form and route handler |
+| Forms | react-hook-form with the Zod resolver |
+| Icons | lucide-react |
+| Email | Resend, wired in as Supabase's SMTP provider |
+| API | Next.js Route Handlers and Server Actions. No separate server |
+| Hosting | Vercel |
 
-1. Auto status emails on status change (SendGrid + templates).
-2. Approval-queue reminders for applications sitting unreviewed.
-3. Duplicate creator detection on signup (email/phone/handle match).
-4. AI-assisted moderation pre-screening uploads before human review.
-5. Basic search relevance ranking (Typesense) once the catalog is large enough to need it.
-6. AI content tagging on upload.
-7. Auto-recommended creators for a brief, once there's real campaign history to train on.
+## 6. Current State
 
-None of these are needed for the MVP frontend in this repo, and none should be built before the backend they depend on exists.
+Task 1 (purge) is complete. The brand side, briefs, pitches, requests, discover, admin reports and all mock data are deleted. Nine routes remain.
+
+The creator and admin portals still run on a temporary in-memory store (`lib/data/creators.ts`) and a localStorage session (`lib/auth/mockAuth.ts`). Both files are deleted in Task 2 when Supabase replaces them. No demo records are seeded: a creator only exists once someone submits the application form.

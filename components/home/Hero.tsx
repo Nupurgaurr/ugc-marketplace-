@@ -41,11 +41,8 @@ export default function Hero({ start }: { start: boolean }) {
         </p>
 
         <div className={styles.links} data-links>
-          <Link href={ROUTES.discover} className={styles.link}>
-            Find a creator →
-          </Link>
-          <Link href={ROUTES.client.briefNew} className={styles.link}>
-            Post a brief →
+          <Link href={ROUTES.becomeCreator} className={styles.link}>
+            Become a creator →
           </Link>
         </div>
       </div>

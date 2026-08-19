@@ -6,8 +6,7 @@ import WizardShell from '@/components/shared/WizardShell';
 import FormField, { formFieldStyles } from '@/components/shared/FormField';
 import { Chip } from '@/components/shared/Tag';
 import MemeBeat from './MemeBeat';
-import { NICHES, CONTENT_STYLES, LANGUAGES, SHOOT_SETUPS, TURNAROUND_BANDS } from '@/lib/data/creators';
-import { RATE_BANDS } from '@/lib/data/filters';
+import { NICHES, CONTENT_STYLES, LANGUAGES, SHOOT_SETUPS, TURNAROUND_BANDS, RATE_BANDS } from '@/lib/data/creators';
 import { registerCreator, type CreatorRegistration } from '@/lib/auth/mockAuth';
 import { ROUTES } from '@/lib/routes';
 
@@ -188,8 +187,8 @@ export default function RegisterWizard() {
             <p style={{ fontSize: 'var(--step--1)', color: 'var(--bcm-ash)', marginBottom: '0.6rem' }}>Rate per video</p>
             <div className={formFieldStyles.chips}>
               {RATE_BANDS.map((b) => (
-                <Chip key={b.id} active={form.rateBand === b.label} onClick={() => set('rateBand', b.label)}>
-                  {b.label}
+                <Chip key={b} active={form.rateBand === b} onClick={() => set('rateBand', b)}>
+                  {b}
                 </Chip>
               ))}
             </div>
