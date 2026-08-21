@@ -5,8 +5,11 @@ import type { Database } from '@/lib/database.types';
 
 /**
  * Service role client. Bypasses RLS entirely, so it never runs anywhere a
- * request body can steer it. Used for exactly two things: creating the auth
- * user during application submit, and BCM verifying payout details.
+ * request body can steer it unchecked. Used for: creating the auth user
+ * during application submit, BCM verifying payout details, and all
+ * admin-side creator reads/writes (lib/data/admin.ts, app/actions/review.ts)
+ * — admins authenticate via lib/admin/session.ts, not Supabase Auth, so
+ * there's no RLS-eligible session for them to run under.
  *
  * `server-only` makes importing this from a client component a build error.
  */

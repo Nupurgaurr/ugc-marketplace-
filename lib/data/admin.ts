@@ -1,10 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import type { AdminNote, Creator } from '@/lib/types';
 
 /**
- * BCM-side reads. These return rows only because the caller's session is in
- * the `admins` table. The policies on `creators` and `admin_notes` are what
- * decide that, not this file.
+ * BCM-side reads. Admins have no Supabase session (see lib/admin/session.ts),
+ * so there's no RLS to lean on here — the service-role client bypasses it
+ * entirely, and the admin session cookie (checked by middleware and by each
+ * caller) is what actually gates access to these functions.
  *
  * Payout details are deliberately absent. No admin surface reads them.
  */
@@ -15,15 +16,8 @@ export interface CreatorRow extends Creator {
   sample_links: string[];
 }
 
-export async function isCurrentUserAdmin(): Promise<boolean> {
-  const supabase = createClient();
-  const { data, error } = await supabase.rpc('is_admin');
-  if (error) return false;
-  return data === true;
-}
-
 export async function getCreatorQueue(): Promise<CreatorRow[]> {
-  const supabase = createClient();
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from('creators')
@@ -54,7 +48,7 @@ export async function getCreatorQueue(): Promise<CreatorRow[]> {
 }
 
 export async function getNotesFor(creatorId: string): Promise<AdminNote[]> {
-  const supabase = createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('admin_notes')
     .select('*')

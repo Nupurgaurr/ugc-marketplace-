@@ -132,3 +132,14 @@ One centred line, "Something good is brewing.", and nothing else in the body. No
 The entrance transition reads `welcome to blackcoffee.ugc`, staggering up out of a clipped mask before the black screen lifts. It runs once per browser session, and `sessionStorage` is read during the first render so a repeat visit or a client-side navigation back to home never mounts the overlay and never flashes black. `prefers-reduced-motion` skips it entirely rather than shortening it.
 
 The header is a logo and a hamburger at every breakpoint, including desktop. It never becomes a horizontal nav. The menu holds two destinations: Become a creator, and Admin login.
+
+### 2026-08-21: Admin login moves to email + password, separate from Supabase Auth
+
+**Admins no longer use the magic-link flow described in "Magic link, no passwords" above.** They authenticate with email and password against two hardcoded addresses, checked in the app layer rather than through Supabase Auth. This corrects that entry rather than editing it, per this file's own rule.
+
+Why: admin access needed to be provably restricted to exactly two people, independent of anything reachable through the creator auth surface. Reusing `signInWithOtp` meant one server action and one Postgres auth flow serving both portals, distinguished only by a hidden `portal` form field — easy to get wrong as requirements changed, and not a real boundary on its own.
+
+- The two addresses (`dhruv@blackcoffee.media`, `nupur@blackcoffee.media`) are a hardcoded allowlist in `lib/admin/credentials.ts`, not a database table. Each password exists only as a scrypt hash in an env var (`ADMIN_DHRUV_PASSWORD_HASH`, `ADMIN_NUPUR_PASSWORD_HASH`), generated with `npm run admin:hash-password`. No plaintext password is ever written to disk or committed.
+- Session is a signed cookie (`bcm_admin_session`), not a Supabase session: HMAC-SHA256 over `{email, exp}`, keyed by `ADMIN_SESSION_SECRET`, verified with Web Crypto so the same check runs in edge middleware and in Node. 12h expiry, httpOnly, `secure` in production.
+- **Admins have no `auth.users` row, so RLS cannot gate them.** `middleware.ts` protects every `/admin/*` path by checking the cookie, and `lib/data/admin.ts` / `app/actions/review.ts` read and write through the service-role client instead of the RLS-bound one. The `admins` table and `is_admin()` RPC from the original schema still exist and are harmless, but nothing on the admin path consults them anymore.
+- `addAdminNote` in `app/actions/review.ts` isn't wired into any UI yet, and its `author` column is a `not null` foreign key to `auth.users`. It needs a migration before it can be turned on, since an admin identity no longer lives there.

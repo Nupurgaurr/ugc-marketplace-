@@ -2,7 +2,8 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { getAdminSession } from '@/lib/admin/guard';
 import { ROUTES } from '@/lib/routes';
 import type { CreatorStatus } from '@/lib/types';
 
@@ -17,15 +18,17 @@ const reviewSchema = z.object({
 });
 
 /**
- * BCM moves an application through the pipeline. This is not where the
- * permission check lives. The `admins` policy on `creators` is, and a
- * non-admin session simply updates zero rows here.
+ * BCM moves an application through the pipeline. The service-role client
+ * bypasses RLS, so the admin session check below is the permission check —
+ * unlike before, there's no Postgres policy backstopping this.
  */
 export async function reviewCreator(creatorId: string, status: CreatorStatus): Promise<ReviewResult> {
+  if (!(await getAdminSession())) return { ok: false, message: 'Not permitted.' };
+
   const parsed = reviewSchema.safeParse({ creatorId, status });
   if (!parsed.success) return { ok: false, message: 'Invalid review action.' };
 
-  const supabase = createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('creators')
     .update({ status: parsed.data.status })
@@ -44,19 +47,23 @@ const noteSchema = z.object({
   note: z.string().trim().min(1).max(2000),
 });
 
+/**
+ * Not wired into any UI yet. Left unfinished: `admin_notes.author` is a
+ * not-null FK to auth.users, and admins no longer have an auth.users row
+ * (see lib/admin/session.ts), so this insert will fail until that column is
+ * migrated to something that can hold an admin's identity.
+ */
 export async function addAdminNote(creatorId: string, note: string): Promise<ReviewResult> {
+  const session = await getAdminSession();
+  if (!session) return { ok: false, message: 'Not permitted.' };
+
   const parsed = noteSchema.safeParse({ creatorId, note });
   if (!parsed.success) return { ok: false, message: 'Write something first.' };
 
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, message: 'Not permitted.' };
-
+  const supabase = createAdminClient();
   const { error } = await supabase.from('admin_notes').insert({
     creator_id: parsed.data.creatorId,
-    author: user.id,
+    author: session.email,
     note: parsed.data.note,
   });
 

@@ -1,36 +1,37 @@
 'use client';
 
 import { useFormState, useFormStatus } from 'react-dom';
-import { Mail } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import FormField from '@/components/shared/FormField';
 import Button from '@/components/shared/Button';
-import { sendMagicLink, type ActionResult } from '@/app/actions/auth';
+import { adminSignIn } from '@/app/actions/admin-auth';
+import type { ActionResult } from '@/app/actions/auth';
 import styles from './admin.module.css';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" variant="primary" block arrow disabled={pending}>
-      {pending ? 'Sending' : 'Send me a link'}
+      {pending ? 'Signing in' : 'Sign in'}
     </Button>
   );
 }
 
 export default function LoginForm() {
-  const [state, formAction] = useFormState<ActionResult | null, FormData>(sendMagicLink, null);
+  const [state, formAction] = useFormState<ActionResult | null, FormData>(adminSignIn, null);
 
   return (
     <form action={formAction} className={styles.authForm}>
-      <input type="hidden" name="portal" value="admin" />
       <FormField label="Email" name="email" type="email" placeholder="you@blackcoffee.media" required />
+      <FormField label="Password" name="password" type="password" required />
 
       {state && <p className={state.ok ? styles.authNoteOk : styles.authNoteError}>{state.message}</p>}
 
       <SubmitButton />
 
       <p className={styles.authHint}>
-        <Mail size={14} aria-hidden="true" />
-        Internal use. Only addresses in the admins table can sign in.
+        <Lock size={14} aria-hidden="true" />
+        Internal use. Restricted to two authorized addresses.
       </p>
     </form>
   );

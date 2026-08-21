@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import DashboardShell, { type NavItem } from '@/components/shared/DashboardShell';
-import { signOut } from '@/app/actions/auth';
+import { adminSignOut } from '@/app/actions/admin-auth';
 import { ROUTES } from '@/lib/routes';
 
 const NAV: NavItem[] = [{ label: 'Creator approvals', href: ROUTES.admin.creators }];
@@ -22,7 +22,7 @@ export default function AdminShell({
       navItems={NAV}
       sessionName="BCM"
       sessionEmail={sessionEmail ?? ''}
-      onLogout={signOut}
+      onLogout={adminSignOut}
       pageTitle={pageTitle}
       pageSub={pageSub}
     >
